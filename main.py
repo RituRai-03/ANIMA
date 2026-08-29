@@ -8,6 +8,7 @@ import urllib.request
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+from effects.mystic_portal import draw_mystic_portal
 
 # ---------------------------------------------------------------------------
 # Model Asset Management for MediaPipe Tasks API
@@ -45,6 +46,7 @@ COLOR_DARK_BG = (20, 20, 20)
 
 # Particle list for trailing fingertip particle FX
 particles = []
+
 
 # ---------------------------------------------------------------------------
 # Utility Math Functions
@@ -564,6 +566,7 @@ def main():
 
             for i in range(num_detected):
                 landmarks = results.hand_landmarks[i]
+                # landmarks = smooth_landmarks(landmarks, i)
                 
                 # Fetch handedness label & score
                 handedness_cat = results.handedness[i][0]
@@ -586,6 +589,9 @@ def main():
                 index_tip_px = get_landmark_px(landmarks[8], w, h)
                 thumb_tip_px = get_landmark_px(landmarks[4], w, h)
                 pinky_tip_px = get_landmark_px(landmarks[20], w, h)
+
+                # Add index finger to glowing trail
+                # add_finger_trail(index_tip_px, secondary_color, i)
 
                 # Emit subtle particles at fingertip
                 emit_particles(index_tip_px[0], index_tip_px[1], secondary_color, count=1)
@@ -623,6 +629,28 @@ def main():
                 elif g1 == "OPEN_PALM" and g2 == "OPEN_PALM":
                     dual_mode_str = "PLASMA TETHER"
                     draw_plasma_tether(frame, h1['palm_px'], h2['palm_px'], rotation_angle, COLOR_NEON_BLUE)
+
+                                        # Mystic Portal - added effect
+                    portal_x = (h1['palm_px'][0] + h2['palm_px'][0]) // 2
+                    portal_y = (h1['palm_px'][1] + h2['palm_px'][1]) // 2
+
+                    hand_distance = math.hypot(
+                        h2['palm_px'][0] - h1['palm_px'][0],
+                        h2['palm_px'][1] - h1['palm_px'][1]
+                    )
+
+                    portal_radius = int(
+                        max(60, min(180, hand_distance * 0.45))
+                    )
+
+                    draw_mystic_portal(
+                        frame,
+                        (portal_x, portal_y),
+                        portal_radius,
+                        rotation_angle
+                    )
+
+                    
 
                 # 3. Dual Fist Central Reactor Core
                 elif g1 == "FIST" and g2 == "FIST":
@@ -666,6 +694,9 @@ def main():
                     is_up = (gesture == "THUMBS_UP")
                     b_color = COLOR_NEON_GREEN if is_up else COLOR_RED
                     draw_status_badge(frame, hand['thumb_tip_px'][0], hand['thumb_tip_px'][1] - 40, is_up, b_color)
+
+        # # Draw glowing finger trails
+        # draw_finger_trails(frame)
 
         # Update floating particle animations
         update_and_draw_particles(frame)
