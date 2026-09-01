@@ -9,6 +9,7 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from effects.mystic_portal import draw_mystic_portal
+from effects.fireball import draw_fireball
 
 # ---------------------------------------------------------------------------
 # Model Asset Management for MediaPipe Tasks API
@@ -673,6 +674,8 @@ def main():
                     mid_y = (idx_y + hand['thumb_tip_px'][1]) // 2
                     scale = int(35 + (0.055 - hand['pinch_dist']) * 1000)
                     draw_3d_cube(frame, mid_x, mid_y, scale, rotation_angle, color)
+
+                    draw_fireball(frame, (idx_x, idx_y), 30, rotation_angle)
 
                 elif gesture == "OPEN_PALM":
                     draw_cyber_shield(frame, palm_x, palm_y, 65, rotation_angle, color)
