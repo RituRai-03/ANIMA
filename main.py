@@ -8,8 +8,9 @@ import urllib.request
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
-from effects.mystic_portal import draw_mystic_portal
-from effects.fireball import draw_fireball
+from actions.portal_action import execute_portal
+from actions.fireball_action import execute_fireball
+from actions.beam_action import execute_beam
 
 # ---------------------------------------------------------------------------
 # Model Asset Management for MediaPipe Tasks API
@@ -629,7 +630,7 @@ def main():
                 # 2. Plasma Energy Tether between open palms
                 elif g1 == "OPEN_PALM" and g2 == "OPEN_PALM":
                     dual_mode_str = "PLASMA TETHER"
-                    draw_plasma_tether(frame, h1['palm_px'], h2['palm_px'], rotation_angle, COLOR_NEON_BLUE)
+                    execute_beam(frame, h1['palm_px'], h2['palm_px'], rotation_angle, COLOR_NEON_BLUE)
 
                                         # Mystic Portal - added effect
                     portal_x = (h1['palm_px'][0] + h2['palm_px'][0]) // 2
@@ -644,7 +645,7 @@ def main():
                         max(60, min(180, hand_distance * 0.45))
                     )
 
-                    draw_mystic_portal(
+                    execute_portal(
                         frame,
                         (portal_x, portal_y),
                         portal_radius,
@@ -675,7 +676,7 @@ def main():
                     scale = int(35 + (0.055 - hand['pinch_dist']) * 1000)
                     draw_3d_cube(frame, mid_x, mid_y, scale, rotation_angle, color)
 
-                    draw_fireball(frame, (idx_x, idx_y), 30, rotation_angle)
+                    execute_fireball(frame, (idx_x, idx_y), rotation_angle)
 
                 elif gesture == "OPEN_PALM":
                     draw_cyber_shield(frame, palm_x, palm_y, 65, rotation_angle, color)
