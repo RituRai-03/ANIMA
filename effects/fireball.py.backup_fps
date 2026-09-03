@@ -1,0 +1,333 @@
+import cv2
+import math
+import random
+import time
+import numpy as np
+
+# Module-level state for persistent fireball particle FX
+_fireball_embers = []      # [x, y, vx, vy, size, life, max_life, color]
+_fireball_shockwaves = []  # [x, y, radius, max_radius, life, max_life, color]
+_fireball_flashes = []     # [x, y, radius, life, max_life]
+_fireball_trail_pts = []   # [(x, y), ...] recent positions for motion blur
+
+MAX_EMBERS = 110
+
+
+def _draw_roi_glow(frame, center, radius, color, alpha):
+    """
+    Fast sub-image ROI alpha blending for glow circles.
+    Avoids copying the full frame buffer.
+    """
+    if alpha <= 0 or radius <= 0:
+        return
+    x, y = int(center[0]), int(center[1])
+    r = int(radius)
+    h, w = frame.shape[:2]
+
+    x1 = max(0, x - r)
+    x2 = min(w, x + r)
+    y1 = max(0, y - r)
+    y2 = min(h, y + r)
+
+    if x1 >= x2 or y1 >= y2:
+        return
+
+    roi = frame[y1:y2, x1:x2]
+    overlay = roi.copy()
+    lx = x - x1
+    ly = y - y1
+
+    cv2.circle(overlay, (lx, ly), r, color, -1, cv2.LINE_AA)
+    cv2.addWeighted(overlay, min(1.0, alpha), roi, 1.0 - min(1.0, alpha), 0, roi)
+
+
+def _draw_turbulent_flame_poly(frame, center, radius, color, time_val, num_verts=16, roughness=0.18):
+    """
+    Renders an organic, turbulent flame polygon with irregular flickering edges.
+    """
+    cx, cy = int(center[0]), int(center[1])
+    r = float(radius)
+    if r <= 2:
+        return
+
+    pts = []
+    for i in range(num_verts):
+        angle = 2.0 * math.pi * i / num_verts
+        # Superimpose harmonic frequencies for dynamic flame turbulence
+        turb = roughness * (
+            math.sin(angle * 4.0 + time_val * 18.0) * 0.5 +
+            math.cos(angle * 7.0 - time_val * 24.0) * 0.3 +
+            math.sin(angle * 11.0 + time_val * 32.0) * 0.2
+        )
+        curr_r = max(2.0, r * (1.0 + turb))
+        px = int(cx + curr_r * math.cos(angle))
+        py = int(cy + curr_r * math.sin(angle))
+        pts.append([px, py])
+
+    pts_np = np.array(pts, dtype=np.int32)
+    cv2.fillPoly(frame, [pts_np], color, cv2.LINE_AA)
+
+
+def trigger_fireball_launch(center, velocity=(0, -18.0)):
+    """
+    Triggers a high-velocity explosive launch burst at the given center location.
+    Includes a bright launch flash, an expanding shockwave ring, and a burst of directional embers.
+    """
+    global _fireball_embers, _fireball_shockwaves, _fireball_flashes, _fireball_trail_pts
+
+    cx, cy = int(center[0]), int(center[1])
+    vx, vy = velocity
+
+    # Clear motion trail on new launch
+    _fireball_trail_pts = []
+
+    # Bright launch flash
+    _fireball_flashes.append([cx, cy, 75, 7, 7])
+
+    # Dual expanding shockwave rings
+    _fireball_shockwaves.append([cx, cy, 10, 95, 14, 14, (0, 180, 255)])
+    _fireball_shockwaves.append([cx, cy, 5, 60, 10, 10, (255, 255, 255)])
+
+    # Explosive directional ember burst
+    for _ in range(32):
+        angle = random.uniform(0, 2 * math.pi)
+        speed = random.uniform(5.0, 15.0)
+        evx = math.cos(angle) * speed + vx * 0.4
+        evy = math.sin(angle) * speed + vy * 0.4
+        life = random.randint(14, 30)
+        size = random.randint(3, 7)
+        color = (0, random.randint(140, 255), 255)
+        _fireball_embers.append([float(cx), float(cy), evx, evy, size, life, life, color])
+
+    # Enforce maximum particle count
+    if len(_fireball_embers) > MAX_EMBERS:
+        _fireball_embers = _fireball_embers[-MAX_EMBERS:]
+
+
+def trigger_fireball_impact(center):
+    """
+    Triggers an explosive fireball impact burst at the given center location.
+    """
+    global _fireball_embers, _fireball_shockwaves, _fireball_flashes, _fireball_trail_pts
+
+    cx, cy = int(center[0]), int(center[1])
+    _fireball_trail_pts = []
+
+    # Impact shockwave flash & expanding ring
+    _fireball_flashes.append([cx, cy, 90, 8, 8])
+    _fireball_shockwaves.append([cx, cy, 15, 125, 18, 18, (0, 220, 255)])
+    _fireball_shockwaves.append([cx, cy, 10, 75, 12, 12, (255, 255, 255)])
+
+    # Radial flame particle splash
+    for _ in range(36):
+        angle = random.uniform(0, 2 * math.pi)
+        speed = random.uniform(6.0, 16.0)
+        evx = math.cos(angle) * speed
+        evy = math.sin(angle) * speed
+        life = random.randint(14, 28)
+        size = random.randint(3, 8)
+        color = (0, random.randint(160, 255), 255)
+        _fireball_embers.append([float(cx), float(cy), evx, evy, size, life, life, color])
+
+
+def draw_fireball(frame, center, size=35, angle=0, charge=1.0, is_ready=False, is_projectile=False, velocity=(0, 0)):
+    """
+    Renders a cinematic, multi-layered AR Fireball effect with dynamic flame turbulence,
+    hand charging glow, motion blur flight trails, and explosive impact VFX.
+    """
+    global _fireball_embers, _fireball_shockwaves, _fireball_flashes, _fireball_trail_pts
+
+    x, y = int(center[0]), int(center[1])
+    base_size = max(5, int(size))
+    t = time.time()
+
+    # ---------------------------------------------------------
+    # 1. Pulsing / Breathing Animation & Flame Turbulence
+    # ---------------------------------------------------------
+    if is_ready:
+        pulse = math.sin(t * 14.0) * 4.0 + math.cos(t * 26.0) * 2.0
+        effective_size = max(10, int(base_size + pulse))
+    else:
+        pulse = math.sin(t * 8.0) * (2.0 * charge)
+        effective_size = max(6, int(base_size + pulse))
+
+    # ---------------------------------------------------------
+    # 2. Hand Charging Glow & Heat Distortion Aura
+    # ---------------------------------------------------------
+    if charge > 0 or is_ready:
+        glow_mult = 2.6 if is_ready else (1.4 + 0.8 * charge)
+        glow_r1 = int(effective_size * glow_mult)
+        glow_r2 = int(effective_size * (glow_mult * 0.65))
+
+        glow_alpha1 = 0.35 if is_ready else (0.18 * charge)
+        glow_alpha2 = 0.50 if is_ready else (0.30 * charge)
+
+        # Deep red/orange outer aura & bright orange core aura
+        _draw_roi_glow(frame, (x, y), glow_r1, (0, 45, 255), glow_alpha1)
+        _draw_roi_glow(frame, (x, y), glow_r2, (0, 140, 255), glow_alpha2)
+
+        # Heat distortion pulsating concentric aura rings during charging
+        if not is_projectile and charge > 0.3:
+            aura_pulse = int(glow_r1 * ((t * 3.0) % 1.0))
+            aura_alpha = max(0.0, 1.0 - ((t * 3.0) % 1.0)) * (0.4 * charge)
+            _draw_roi_glow(frame, (x, y), aura_pulse, (0, 200, 255), aura_alpha)
+
+    # ---------------------------------------------------------
+    # 3. Directional Motion Blur & Flight Tail (Projectile Mode)
+    # ---------------------------------------------------------
+    if is_projectile:
+        _fireball_trail_pts.append((x, y))
+        if len(_fireball_trail_pts) > 8:
+            _fireball_trail_pts.pop(0)
+
+        # Motion trail streak overlays (motion blur effect)
+        for idx in range(len(_fireball_trail_pts) - 1):
+            pt1 = _fireball_trail_pts[idx]
+            pt2 = _fireball_trail_pts[idx + 1]
+            trail_alpha = (idx + 1) / float(len(_fireball_trail_pts))
+            w_line = max(1, int(7 * trail_alpha))
+            cv2.line(frame, pt1, pt2, (0, int(100 * trail_alpha), 255), w_line + 4, cv2.LINE_AA)
+            cv2.line(frame, pt1, pt2, (0, int(200 * trail_alpha), 255), w_line + 1, cv2.LINE_AA)
+            cv2.line(frame, pt1, pt2, (255, 255, 255), max(1, int(w_line * 0.5)), cv2.LINE_AA)
+
+        vx, vy = velocity
+        speed = math.hypot(vx, vy)
+        if speed > 2.0:
+            tail_len = min(70, int(speed * 2.8))
+            tx_tail = int(x - (vx / speed) * tail_len)
+            ty_tail = int(y - (vy / speed) * tail_len)
+
+            # Fading directional streak line
+            cv2.line(frame, (x, y), (tx_tail, ty_tail), (0, 80, 255), 8, cv2.LINE_AA)
+            cv2.line(frame, (x, y), (tx_tail, ty_tail), (0, 180, 255), 4, cv2.LINE_AA)
+            cv2.line(frame, (x, y), (tx_tail, ty_tail), (255, 255, 255), 2, cv2.LINE_AA)
+
+    # ---------------------------------------------------------
+    # 4. Swirling Flame Turbulence & Rotating Flame Lobes
+    # ---------------------------------------------------------
+    num_lobes = 14 if is_ready else 10
+    rot_base = angle * 2.5 if angle != 0 else (t * 240.0)
+
+    for i in range(num_lobes):
+        lobe_angle = math.radians(rot_base + i * (360.0 / num_lobes))
+        dist = effective_size * (1.15 + 0.35 * math.sin(t * 20.0 + i * 1.6))
+        lx = int(x + dist * math.cos(lobe_angle))
+        ly = int(y + dist * math.sin(lobe_angle))
+        lsize = max(2, int(effective_size * 0.32 + random.randint(-1, 2)))
+
+        # Outer flame lobes (Vivid Orange to Red gradient)
+        cv2.circle(frame, (lx, ly), lsize, (0, random.randint(110, 220), 255), -1, cv2.LINE_AA)
+
+    # ---------------------------------------------------------
+    # 5. Multi-Layered Turbulent Fireball Core (Organic Flame Polygon)
+    # ---------------------------------------------------------
+    # Layer 1: Outer flame rim (Deep Red-Orange)
+    _draw_turbulent_flame_poly(frame, (x, y), effective_size, (0, 65, 255), t, num_verts=16, roughness=0.20)
+
+    # Layer 2: Mid flame body (Vivid Orange)
+    mid_r = int(effective_size * 0.74)
+    if mid_r > 0:
+        _draw_turbulent_flame_poly(frame, (x, y), mid_r, (0, 150, 255), t + 0.5, num_verts=14, roughness=0.15)
+
+    # Layer 3: Inner flame core (Bright Yellow-Orange)
+    inner_r = int(effective_size * 0.48)
+    if inner_r > 0:
+        _draw_turbulent_flame_poly(frame, (x, y), inner_r, (0, 220, 255), t + 1.0, num_verts=12, roughness=0.10)
+
+    # Layer 4: Hot Center Nucleus (Intense White/Yellow Core)
+    hot_r = int(effective_size * 0.26)
+    if hot_r > 0:
+        core_color = (255, 255, 255) if (is_ready or charge > 0.7) else (190, 245, 255)
+        cv2.circle(frame, (x, y), hot_r, core_color, -1, cv2.LINE_AA)
+
+    # ---------------------------------------------------------
+    # 6. Ready State Electric Arcs & Solar Flares
+    # ---------------------------------------------------------
+    if is_ready:
+        for _ in range(5):
+            arc_angle = random.uniform(0, 2 * math.pi)
+            r1 = effective_size * random.uniform(0.8, 1.1)
+            r2 = effective_size * random.uniform(1.3, 1.9)
+            x1 = int(x + r1 * math.cos(arc_angle))
+            y1 = int(y + r1 * math.sin(arc_angle))
+            x2 = int(x + r2 * math.cos(arc_angle + random.uniform(-0.35, 0.35)))
+            y2 = int(y + r2 * math.sin(arc_angle + random.uniform(-0.35, 0.35)))
+            cv2.line(frame, (x1, y1), (x2, y2), (200, 255, 255), 2, cv2.LINE_AA)
+
+    # ---------------------------------------------------------
+    # 7. Particle Emission (Embers, Smoke & Trailing Wake)
+    # ---------------------------------------------------------
+    if is_projectile:
+        vx, vy = velocity
+        for _ in range(4):
+            evx = -vx * random.uniform(0.25, 0.65) + random.uniform(-1.5, 1.5)
+            evy = -vy * random.uniform(0.25, 0.65) + random.uniform(-1.5, 1.5)
+            life = random.randint(12, 26)
+            esize = random.randint(3, 6)
+            color = (0, random.randint(150, 255), 255)
+            _fireball_embers.append([float(x), float(y), evx, evy, esize, life, life, color])
+    else:
+        spawn_rate = 5 if is_ready else (3 if random.random() < charge else 0)
+        for _ in range(spawn_rate):
+            ang = random.uniform(0, 2 * math.pi)
+            dist = random.uniform(0, effective_size * 0.85)
+            px = x + dist * math.cos(ang)
+            py = y + dist * math.sin(ang)
+            evx = random.uniform(-1.5, 1.5)
+            evy = random.uniform(-2.8, -0.6)
+            life = random.randint(14, 32)
+            esize = random.randint(2, 6)
+            color = (0, random.randint(130, 240), 255)
+            _fireball_embers.append([px, py, evx, evy, esize, life, life, color])
+
+    if len(_fireball_embers) > MAX_EMBERS:
+        _fireball_embers = _fireball_embers[-MAX_EMBERS:]
+
+    # ---------------------------------------------------------
+    # 8. Render Flashes, Shockwaves & Embers
+    # ---------------------------------------------------------
+    new_flashes = []
+    for flash in _fireball_flashes:
+        fx, fy, fr, life, max_l = flash
+        alpha = life / float(max_l)
+        _draw_roi_glow(frame, (fx, fy), int(fr * alpha), (220, 250, 255), 0.70 * alpha)
+        life -= 1
+        if life > 0:
+            new_flashes.append([fx, fy, fr, life, max_l])
+    _fireball_flashes = new_flashes
+
+    new_shockwaves = []
+    for sw in _fireball_shockwaves:
+        sx, sy, r_curr, r_max, life, max_l, color = sw
+        progress = 1.0 - (life / float(max_l))
+        curr_r = int(r_curr + (r_max - r_curr) * progress)
+        alpha = life / float(max_l)
+        _draw_roi_glow(frame, (sx, sy), curr_r, color, 0.35 * alpha)
+        cv2.circle(frame, (sx, sy), curr_r, (0, int(220 * alpha), 255), max(1, int(3 * alpha)), cv2.LINE_AA)
+        life -= 1
+        if life > 0:
+            new_shockwaves.append([sx, sy, r_curr, r_max, life, max_l, color])
+    _fireball_shockwaves = new_shockwaves
+
+    new_embers = []
+    for p in _fireball_embers:
+        px, py, evx, evy, esize, life, max_l, color = p
+        px += evx
+        py += evy
+        life -= 1
+
+        alpha = life / float(max_l)
+        curr_size = max(1, int(esize * alpha))
+        cv2.circle(frame, (int(px), int(py)), curr_size, color, -1, cv2.LINE_AA)
+
+        if life > 0:
+            new_embers.append([px, py, evx, evy, esize, life, max_l, color])
+    _fireball_embers = new_embers
+
+    return frame
+
+
+
+
+
+

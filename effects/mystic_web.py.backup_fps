@@ -200,21 +200,11 @@ def draw_web(
     cyan_glow = (255, 235, 200)
 
     # ---------------------------------------------------------
-    # 2. Shadow Overlay for High-Contrast Visibility (ROI Optimized)
+    # 2. Shadow Overlay for High-Contrast Visibility
     # ---------------------------------------------------------
-    r_shad = current_radius + int(15 * hand_scale)
-    h_f, w_f = frame.shape[:2]
-    x1_s = max(0, cx - r_shad)
-    x2_s = min(w_f, cx + r_shad)
-    y1_s = max(0, cy - r_shad)
-    y2_s = min(h_f, cy + r_shad)
-
-    if x1_s < x2_s and y1_s < y2_s:
-        roi_s = frame[y1_s:y2_s, x1_s:x2_s]
-        overlay_s = roi_s.copy()
-        cv2.circle(overlay_s, (cx - x1_s, cy - y1_s), r_shad, shadow_dark, -1)
-        b_alpha = 0.28 * alpha * min(1.0, deploy_scale)
-        cv2.addWeighted(overlay_s, b_alpha, roi_s, 1.0 - b_alpha, 0, roi_s)
+    overlay = frame.copy()
+    cv2.circle(overlay, (cx, cy), current_radius + int(15 * hand_scale), shadow_dark, -1)
+    cv2.addWeighted(overlay, 0.28 * alpha * min(1.0, deploy_scale), frame, 1.0 - 0.28 * alpha * min(1.0, deploy_scale), 0, frame)
 
     # ---------------------------------------------------------
     # 3. Main Web Fluid Cable (Palm Shooter to Web Net)

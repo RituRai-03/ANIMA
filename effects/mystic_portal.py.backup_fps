@@ -8,9 +8,6 @@ import numpy as np
 _portal_particles = []  # [x, y, radius, angle, speed, size, life, max_life, color]
 MAX_PORTAL_PARTICLES = 50
 
-# Cache for distortion grid to avoid re-allocating np.mgrid every frame
-_distort_grid_cache = {}
-
 
 def _point(cx, cy, radius, angle):
     rad = math.radians(angle)
@@ -66,9 +63,8 @@ def _draw_rune(canvas, center, size, angle, rune_id, color, thickness=2):
 def _draw_portal_distortion(frame, center, radius):
     """
     Fast sub-image ROI spatial distortion overlay creating pseudo-refractive
-    swirling ripples around the portal rim using cached grid coordinates.
+    swirling ripples around the portal rim using standard OpenCV operations.
     """
-    global _distort_grid_cache
     cx, cy = int(center[0]), int(center[1])
     r = int(radius * 1.1)
     h, w = frame.shape[:2]
@@ -83,28 +79,23 @@ def _draw_portal_distortion(frame, center, radius):
 
     roi = frame[y1:y2, x1:x2]
     rh, rw = roi.shape[:2]
+
+    # Create subtle swirl distortion map
+    map_x = np.zeros((rh, rw), dtype=np.float32)
+    map_y = np.zeros((rh, rw), dtype=np.float32)
+
     lcx = cx - x1
     lcy = cy - y1
 
-    grid_key = (rh, rw, lcx, lcy)
-    if grid_key in _distort_grid_cache:
-        grid_x, grid_y, dist, mask = _distort_grid_cache[grid_key]
-    else:
-        grid_y, grid_x = np.mgrid[0:rh, 0:rw].astype(np.float32)
-        dx = grid_x - lcx
-        dy = grid_y - lcy
-        dist = np.sqrt(dx * dx + dy * dy)
-        mask = (dist > r * 0.5) & (dist < r * 1.05)
-        # Limit cache size to 4 items
-        if len(_distort_grid_cache) > 4:
-            _distort_grid_cache.clear()
-        _distort_grid_cache[grid_key] = (grid_x, grid_y, dist, mask)
-        dx_m = dx
-        dy_m = dy
-
+    grid_y, grid_x = np.mgrid[0:rh, 0:rw].astype(np.float32)
     dx = grid_x - lcx
     dy = grid_y - lcy
+    dist = np.sqrt(dx * dx + dy * dy)
+
+    # Ripple frequency band near radius edge
+    mask = (dist > r * 0.5) & (dist < r * 1.05)
     angle_shift = 0.08 * np.sin(dist * 0.2)
+
     cos_a = np.cos(angle_shift)
     sin_a = np.sin(angle_shift)
 
@@ -126,7 +117,6 @@ def draw_mystic_portal(frame, center, radius, rotation=0, scale=1.0, alpha=1.0):
     global _portal_particles
 
     cx, cy = int(center[0]), int(center[1])
-    h_frame, w_frame = frame.shape[:2]
     scale = max(0.01, min(2.5, scale))
     alpha = max(0.0, min(1.0, alpha))
     current_radius = max(10, int(radius * scale))
@@ -139,20 +129,12 @@ def draw_mystic_portal(frame, center, radius, rotation=0, scale=1.0, alpha=1.0):
         _draw_portal_distortion(frame, (cx, cy), current_radius)
 
     # ---------------------------------------------------------
-    # 1. PARALLAX LAYER: BACK (Deep Ambient Glow & Shadow Disk via ROI)
+    # 1. PARALLAX LAYER: BACK (Deep Ambient Glow & Shadow Disk)
     # ---------------------------------------------------------
-    r_glow = int(current_radius * 1.1) + 20
-    x1_g = max(0, cx - r_glow)
-    x2_g = min(w_frame, cx + r_glow)
-    y1_g = max(0, cy - r_glow)
-    y2_g = min(h_frame, cy + r_glow)
-
-    if x1_g < x2_g and y1_g < y2_g:
-        roi_g = frame[y1_g:y2_g, x1_g:x2_g]
-        glow_roi = np.zeros_like(roi_g)
-        cv2.circle(glow_roi, (cx - x1_g, cy - y1_g), int(current_radius * 0.95), (0, 100, 255), 10, cv2.LINE_AA)
-        glow_roi = cv2.GaussianBlur(glow_roi, (35, 35), 0)
-        cv2.addWeighted(glow_roi, 0.4 * alpha, roi_g, 1.0, 0, roi_g)
+    glow = np.zeros_like(frame)
+    cv2.circle(glow, (cx, cy), int(current_radius * 0.95), (0, 100, 255), 10, cv2.LINE_AA)
+    glow = cv2.GaussianBlur(glow, (35, 35), 0)
+    cv2.addWeighted(glow, 0.4 * alpha, frame, 1.0, 0, frame)
 
     # Back depth ring (Cyan/Navy)
     cv2.circle(frame, (cx, cy), int(current_radius * 1.05), (180, 80, 0), max(1, int(2 * scale)), cv2.LINE_AA)
@@ -165,7 +147,7 @@ def draw_mystic_portal(frame, center, radius, rotation=0, scale=1.0, alpha=1.0):
     cv2.circle(frame, (cx, cy), int(current_radius * 0.70), (255, 140, 30), max(1, int(2 * scale)), cv2.LINE_AA)
 
     # ---------------------------------------------------------
-    # 3. ROTATING RUNES (Fast ROI Sub-Image Rendering)
+    # 3. ROTATING RUNES (Layered Depth & Varying Speeds)
     # ---------------------------------------------------------
     rune_count = 12
     rune_radius_mid = current_radius * 0.84
@@ -177,6 +159,7 @@ def draw_mystic_portal(frame, center, radius, rotation=0, scale=1.0, alpha=1.0):
         rx, ry = _point(cx, cy, rune_radius_mid, angle)
         rsize = max(4, int(current_radius * 0.075))
 
+        # Pulsing rune brightness
         pulse = 0.8 + 0.3 * math.sin(t * 5.0 + i * 0.8)
         color = (
             int(255 * pulse),
@@ -184,19 +167,12 @@ def draw_mystic_portal(frame, center, radius, rotation=0, scale=1.0, alpha=1.0):
             int(70 * pulse)
         )
 
-        rpad = rsize + 15
-        x1_r = max(0, rx - rpad)
-        x2_r = min(w_frame, rx + rpad)
-        y1_r = max(0, ry - rpad)
-        y2_r = min(h_frame, ry + rpad)
+        rune_layer = np.zeros_like(frame)
+        _draw_rune(rune_layer, (rx, ry), rsize, -rotation * 2.0 + i * 20, i, color, max(1, int(2 * scale)))
+        rune_glow = cv2.GaussianBlur(rune_layer, (11, 11), 0)
 
-        if x1_r < x2_r and y1_r < y2_r:
-            roi_r = frame[y1_r:y2_r, x1_r:x2_r]
-            rune_sub = np.zeros_like(roi_r)
-            _draw_rune(rune_sub, (rx - x1_r, ry - y1_r), rsize, -rotation * 2.0 + i * 20, i, color, max(1, int(2 * scale)))
-            rune_sub_glow = cv2.GaussianBlur(rune_sub, (11, 11), 0)
-            cv2.addWeighted(rune_sub_glow, 0.6 * alpha, roi_r, 1.0, 0, roi_r)
-            cv2.addWeighted(rune_sub, 0.9 * alpha, roi_r, 1.0, 0, roi_r)
+        cv2.addWeighted(rune_glow, 0.6 * alpha, frame, 1.0, 0, frame)
+        cv2.addWeighted(rune_layer, 0.9 * alpha, frame, 1.0, 0, frame)
 
     # Back Layer Counter-Rotating Runes (Cyan/Blue)
     for i in range(6):
@@ -205,17 +181,9 @@ def draw_mystic_portal(frame, center, radius, rotation=0, scale=1.0, alpha=1.0):
         rsize = max(3, int(current_radius * 0.055))
         color = (255, 230, 100)
 
-        rpad = rsize + 10
-        x1_r = max(0, rx - rpad)
-        x2_r = min(w_frame, rx + rpad)
-        y1_r = max(0, ry - rpad)
-        y2_r = min(h_frame, ry + rpad)
-
-        if x1_r < x2_r and y1_r < y2_r:
-            roi_r = frame[y1_r:y2_r, x1_r:x2_r]
-            rune_sub = np.zeros_like(roi_r)
-            _draw_rune(rune_sub, (rx - x1_r, ry - y1_r), rsize, rotation * 3.0 + i * 30, i + 2, color, max(1, int(1 * scale)))
-            cv2.addWeighted(rune_sub, 0.7 * alpha, roi_r, 1.0, 0, roi_r)
+        rune_layer = np.zeros_like(frame)
+        _draw_rune(rune_layer, (rx, ry), rsize, rotation * 3.0 + i * 30, i + 2, color, max(1, int(1 * scale)))
+        cv2.addWeighted(rune_layer, 0.7 * alpha, frame, 1.0, 0, frame)
 
     # ---------------------------------------------------------
     # 4. ROTATING ARC SEGMENTS & ENERGY TICKS
@@ -281,5 +249,4 @@ def draw_mystic_portal(frame, center, radius, rotation=0, scale=1.0, alpha=1.0):
 
     _portal_particles = new_particles[-MAX_PORTAL_PARTICLES:]
 
-    return frame
-
+    return frame
