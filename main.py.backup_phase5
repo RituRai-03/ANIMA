@@ -2282,7 +2282,6 @@ def main():
                     proj["phase"] = "impact"
                     proj["life"] = 8
                     proj["max_life"] = 8
-                    screen_shake_frames = 4
 
             elif proj["phase"] == "impact":
                 proj["life"] -= 1
@@ -2334,18 +2333,6 @@ def main():
             hud_hand_info,
             dual_mode_str
         )
-
-        # =================================================================
-        # Post-Processing Subtle Screen Shake
-        # =================================================================
-
-        if 'screen_shake_frames' in locals() and screen_shake_frames > 0:
-            h_f, w_f = frame.shape[:2]
-            dx_s = random.randint(-3, 3)
-            dy_s = random.randint(-3, 3)
-            M_s = np.float32([[1, 0, dx_s], [0, 1, dy_s]])
-            frame = cv2.warpAffine(frame, M_s, (w_f, h_f))
-            screen_shake_frames -= 1
 
         # =================================================================
         # Display

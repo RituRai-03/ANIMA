@@ -14,11 +14,11 @@ from actions.beam_action import execute_beam
 from ui.hud import draw_hud
 
 from actions.fireball_action import FireballAction
-from effects.fireball import draw_fireball, trigger_fireball_launch, trigger_fireball_impact
+from effects.fireball import draw_fireball, trigger_fireball_launch
 
 # Mystic Web
 from actions.web_action import WebAction
-from effects.mystic_web import draw_web, draw_web_projectile_and_impact, draw_web_muzzle_flash
+from effects.mystic_web import draw_web
 
 
 # ---------------------------------------------------------------------------
@@ -1346,8 +1346,6 @@ def main():
         WebAction()
     ]
 
-    active_web_projectiles = []
-
     # ---------------------------------------------------------------
     # Console Information
     # ---------------------------------------------------------------
@@ -1804,20 +1802,6 @@ def main():
                     web_state["active"]
                 )
 
-                if web_state.get("web_requested", False):
-                    web_target_pt = (
-                        (index_tip_px[0] + pinky_tip_px[0]) // 2,
-                        (index_tip_px[1] + pinky_tip_px[1]) // 2
-                    )
-                    active_web_projectiles.append({
-                        "pos": [float(palm_px[0]), float(palm_px[1])],
-                        "origin": [float(palm_px[0]), float(palm_px[1])],
-                        "target": [float(web_target_pt[0]), float(web_target_pt[1])],
-                        "life": 10,
-                        "max_life": 10,
-                        "phase": "shooting"
-                    })
-
                 # -------------------------------------------------------
                 # Hand Data
                 # -------------------------------------------------------
@@ -2264,35 +2248,6 @@ def main():
                 )
 
         # =================================================================
-        # SPIDER-MAN WEB PROJECTILES
-        # =================================================================
-
-        for proj in active_web_projectiles[:]:
-            if proj["phase"] == "shooting":
-                tx, ty = proj["target"]
-                px, py = proj["pos"]
-                dx = tx - px
-                dy = ty - py
-                dist = math.hypot(dx, dy)
-                if dist > 15:
-                    proj["pos"][0] += (dx / dist) * 40.0
-                    proj["pos"][1] += (dy / dist) * 40.0
-                    proj["life"] -= 1
-                else:
-                    proj["phase"] = "impact"
-                    proj["life"] = 8
-                    proj["max_life"] = 8
-                    screen_shake_frames = 4
-
-            elif proj["phase"] == "impact":
-                proj["life"] -= 1
-
-            draw_web_projectile_and_impact(frame, proj)
-
-            if proj["life"] <= 0:
-                active_web_projectiles.remove(proj)
-
-        # =================================================================
         # Particle Animation
         # =================================================================
 
@@ -2334,18 +2289,6 @@ def main():
             hud_hand_info,
             dual_mode_str
         )
-
-        # =================================================================
-        # Post-Processing Subtle Screen Shake
-        # =================================================================
-
-        if 'screen_shake_frames' in locals() and screen_shake_frames > 0:
-            h_f, w_f = frame.shape[:2]
-            dx_s = random.randint(-3, 3)
-            dy_s = random.randint(-3, 3)
-            M_s = np.float32([[1, 0, dx_s], [0, 1, dy_s]])
-            frame = cv2.warpAffine(frame, M_s, (w_f, h_f))
-            screen_shake_frames -= 1
 
         # =================================================================
         # Display

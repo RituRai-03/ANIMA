@@ -1,0 +1,266 @@
+import cv2
+import math
+import numpy as np
+
+
+def draw_web_muzzle_flash(frame, origin_pt, hold_time=0.0):
+    """
+    Renders a fast, mechanical web-shooter ejection burst at the palm/wrist origin.
+    Only active during the first ~0.25 seconds of shooting.
+    """
+    if hold_time > 0.25:
+        return
+
+    ox, oy = int(origin_pt[0]), int(origin_pt[1])
+    progress = hold_time / 0.25
+    fade = max(0.0, 1.0 - progress)
+
+    bright_white = (255, 255, 255)
+    cyan_glow = (255, 235, 200) # Subtle cyan-blue energy tint
+
+    # 1. High-speed radial web ejection spikes
+    spikes = 8
+    spike_len = int(30 * fade)
+    for i in range(spikes):
+        angle = (2 * math.pi * i / spikes) + (progress * 0.5)
+        ex = int(ox + math.cos(angle) * spike_len)
+        ey = int(oy + math.sin(angle) * spike_len)
+        cv2.line(frame, (ox, oy), (ex, ey), bright_white, 2, cv2.LINE_AA)
+
+    # 2. Concentric shooter flash rings
+    r_inner = max(2, int(8 * fade))
+    r_outer = max(4, int(18 * fade))
+    cv2.circle(frame, (ox, oy), r_outer, cyan_glow, 1, cv2.LINE_AA)
+    cv2.circle(frame, (ox, oy), r_inner, bright_white, -1, cv2.LINE_AA)
+
+
+def draw_web_projectile_and_impact(frame, proj):
+    """
+    Renders a flying Spider-Man web projectile with trailing tension strand
+    and radial impact web burst upon reaching the target.
+    """
+    pos = proj.get('pos', [0, 0])
+    origin = proj.get('origin', [0, 0])
+    target = proj.get('target', [0, 0])
+    life = proj.get('life', 20)
+    max_life = proj.get('max_life', 20)
+    phase = proj.get('phase', 'shooting')
+
+    px, py = int(pos[0]), int(pos[1])
+    ox, oy = int(origin[0]), int(origin[1])
+    tx, ty = int(target[0]), int(target[1])
+
+    life_ratio = max(0.0, life / float(max_life))
+    bright_white = (255, 255, 255)
+    silk_silver = (215, 215, 230)
+
+    if phase == 'shooting':
+        # 1. Main elastic web cable from shooter origin to projectile tip
+        cv2.line(frame, (ox, oy), (px, py), (160, 160, 180), 4, cv2.LINE_AA)
+        cv2.line(frame, (ox, oy), (px, py), bright_white, 2, cv2.LINE_AA)
+
+        # 2. Secondary spiral trailing micro-strands
+        dist = math.hypot(px - ox, py - oy)
+        if dist > 20:
+            angle = math.atan2(py - oy, px - ox)
+            steps = max(6, int(dist / 15))
+            for strand_offset in [0, math.pi]:
+                pts = []
+                for s in range(steps + 1):
+                    t = s / float(steps)
+                    bx = ox + (px - ox) * t
+                    by = oy + (py - oy) * t
+                    amp = 6.0 * math.sin(t * math.pi)
+                    phase_angle = t * math.pi * 6.0 + strand_offset
+                    dx = -math.sin(angle) * amp * math.sin(phase_angle)
+                    dy = math.cos(angle) * amp * math.sin(phase_angle)
+                    pts.append((int(bx + dx), int(by + dy)))
+
+                for i in range(len(pts) - 1):
+                    cv2.line(frame, pts[i], pts[i + 1], bright_white, 1, cv2.LINE_AA)
+
+        # 3. Flying web projectile tip
+        r = int(5 + 6 * (1.0 - life_ratio))
+        cv2.circle(frame, (px, py), r + 3, silk_silver, 1, cv2.LINE_AA)
+        cv2.circle(frame, (px, py), r, bright_white, -1, cv2.LINE_AA)
+
+    elif phase == 'impact':
+        # Impact radial web burst at target
+        radius = int(40 * (1.0 - life_ratio))
+        spokes = 8
+        for i in range(spokes):
+            angle = 2 * math.pi * i / spokes
+            ex = int(tx + math.cos(angle) * radius)
+            ey = int(ty + math.sin(angle) * radius)
+            cv2.line(frame, (tx, ty), (ex, ey), bright_white, 1, cv2.LINE_AA)
+
+        cv2.circle(frame, (tx, ty), max(2, radius), bright_white, 1, cv2.LINE_AA)
+        cv2.circle(frame, (tx, ty), max(2, int(6 * life_ratio)), bright_white, -1, cv2.LINE_AA)
+
+
+def draw_web(
+    frame,
+    center,
+    radius=120,
+    alpha=1.0,
+    palm_center=None,
+    hold_time=1.0
+):
+    """
+    Renders an ultra-clean, realistic, cinematic Spider-Man cobweb net effect.
+
+    Visual Features:
+    - High-contrast ambient shadow backdrop
+    - Multi-strand web fluid cable from palm shooter
+    - 12 radial spokes with smooth continuous rotation
+    - 5 catenary cobweb rings with concave sagged arcs
+    - Lattice intersection node dots
+    - Floating web droplets / splatters
+    - Central web reticle core & expanding wavefront pulse rings
+    """
+    cx, cy = int(center[0]), int(center[1])
+    alpha = max(0.0, min(1.0, alpha))
+    ticks = cv2.getTickCount() / cv2.getTickFrequency()
+
+    # Muzzle flash at shooter origin during trigger
+    if palm_center is not None and hold_time < 0.25:
+        draw_web_muzzle_flash(frame, palm_center, hold_time)
+
+    # Smooth elastic deployment expansion
+    deploy_t = min(1.0, max(0.0, hold_time * 8.0))
+    deploy_scale = math.sin(deploy_t * math.pi / 2.0)
+    current_radius = max(25, int(radius * (0.3 + 0.7 * deploy_scale)))
+
+    bright_white = (255, 255, 255)
+    silk_silver = (215, 215, 230)
+    shadow_dark = (12, 12, 18)
+
+    # ---------------------------------------------------------
+    # 1. Shadow Overlay for High-Contrast Visibility
+    # ---------------------------------------------------------
+    overlay = frame.copy()
+    cv2.circle(overlay, (cx, cy), current_radius + 15, shadow_dark, -1)
+    cv2.addWeighted(overlay, 0.28 * alpha * deploy_scale, frame, 1.0 - 0.28 * alpha * deploy_scale, 0, frame)
+
+    # ---------------------------------------------------------
+    # 2. Main Web Fluid Cable (Palm Shooter to Web Net)
+    # ---------------------------------------------------------
+    if palm_center is not None:
+        px, py = int(palm_center[0]), int(palm_center[1])
+
+        # Dynamic target point extending with deployment progress
+        target_x = int(px + (cx - px) * deploy_scale)
+        target_y = int(py + (cy - py) * deploy_scale)
+
+        # Braided main cable
+        cv2.line(frame, (px, py), (target_x, target_y), (140, 140, 160), 5, cv2.LINE_AA)
+        cv2.line(frame, (px, py), (target_x, target_y), silk_silver, 3, cv2.LINE_AA)
+        cv2.line(frame, (px, py), (target_x, target_y), bright_white, 1, cv2.LINE_AA)
+
+        # Wrapping spiral threads around main cable
+        cable_dist = math.hypot(target_x - px, target_y - py)
+        if cable_dist > 15:
+            cable_angle = math.atan2(target_y - py, target_x - px)
+            steps = max(8, int(cable_dist / 12))
+            for strand_offset in [0, 2.094, 4.188]:
+                pts = []
+                for s in range(steps + 1):
+                    t = s / float(steps)
+                    bx = px + (target_x - px) * t
+                    by = py + (target_y - py) * t
+                    phase = ticks * 14.0 + t * math.pi * 6.0 + strand_offset
+                    amp = 5.0 * math.sin(t * math.pi)
+                    dx = -math.sin(cable_angle) * amp * math.sin(phase)
+                    dy = math.cos(cable_angle) * amp * math.sin(phase)
+                    pts.append((int(bx + dx), int(by + dy)))
+
+                for i in range(len(pts) - 1):
+                    cv2.line(frame, pts[i], pts[i + 1], bright_white, 1, cv2.LINE_AA)
+
+        # Web shooter nozzle ring at palm
+        cv2.circle(frame, (px, py), 10, silk_silver, 2, cv2.LINE_AA)
+        cv2.circle(frame, (px, py), 5, bright_white, -1, cv2.LINE_AA)
+
+    # ---------------------------------------------------------
+    # 3. 12 Radial Web Spokes (Clean Cobweb Grid)
+    # ---------------------------------------------------------
+    spokes = 12
+    spoke_angles = []
+    rotation_offset = ticks * 0.4 # Slow, smooth web rotation
+
+    for i in range(spokes):
+        angle = (2 * math.pi * i / spokes - math.pi / 2) + rotation_offset
+        spoke_angles.append(angle)
+        end_x = int(cx + math.cos(angle) * current_radius)
+        end_y = int(cy + math.sin(angle) * current_radius)
+
+        # Dual-layer spoke lines (silver backdrop + bright core)
+        cv2.line(frame, (cx, cy), (end_x, end_y), silk_silver, 2, cv2.LINE_AA)
+        cv2.line(frame, (cx, cy), (end_x, end_y), bright_white, 1, cv2.LINE_AA)
+
+    # ---------------------------------------------------------
+    # 4. 5 Catenary Cobweb Rings (Curved Sagged Arcs)
+    # ---------------------------------------------------------
+    ring_count = 5
+    for ring in range(1, ring_count + 1):
+        r_dist = current_radius * (ring / float(ring_count))
+        # Subtle wind wave motion along catenary sags
+        wave = 0.02 * math.sin(ticks * 5.0 + ring * 0.7)
+        sag_ratio = 0.84 + wave
+
+        for i in range(spokes):
+            a1 = spoke_angles[i]
+            a2 = spoke_angles[(i + 1) % spokes]
+
+            p1 = (int(cx + math.cos(a1) * r_dist), int(cy + math.sin(a1) * r_dist))
+            p2 = (int(cx + math.cos(a2) * r_dist), int(cy + math.sin(a2) * r_dist))
+
+            mid_a = (a1 + a2) / 2.0
+            sag_d = r_dist * sag_ratio
+            p_mid = (int(cx + math.cos(mid_a) * sag_d), int(cy + math.sin(mid_a) * sag_d))
+
+            # Render smooth concave arc using 2 sub-segments
+            cv2.line(frame, p1, p_mid, silk_silver, 1, cv2.LINE_AA)
+            cv2.line(frame, p_mid, p2, silk_silver, 1, cv2.LINE_AA)
+            cv2.line(frame, p1, p_mid, bright_white, 1, cv2.LINE_AA)
+            cv2.line(frame, p_mid, p2, bright_white, 1, cv2.LINE_AA)
+
+            # Node dot at lattice intersection
+            cv2.circle(frame, p1, 2, bright_white, -1, cv2.LINE_AA)
+
+    # ---------------------------------------------------------
+    # 5. Floating Web Droplets / Micro-Splatters
+    # ---------------------------------------------------------
+    for p_idx in range(10):
+        p_angle = (p_idx * 0.628) + (ticks * 0.5)
+        p_dist = (current_radius * 0.2) + ((p_idx * 17.0 + ticks * 45.0) % (current_radius * 0.9))
+        part_x = int(cx + math.cos(p_angle) * p_dist)
+        part_y = int(cy + math.sin(p_angle) * p_dist)
+        cv2.circle(frame, (part_x, part_y), 2, bright_white, -1, cv2.LINE_AA)
+
+    # ---------------------------------------------------------
+    # 6. Central Web Node Hub & Reticle Ticks
+    # ---------------------------------------------------------
+    cv2.circle(frame, (cx, cy), 12, silk_silver, 2, cv2.LINE_AA)
+    cv2.circle(frame, (cx, cy), 6, bright_white, -1, cv2.LINE_AA)
+
+    tick_len = 7
+    cv2.line(frame, (cx - 12 - tick_len, cy), (cx - 12, cy), bright_white, 2, cv2.LINE_AA)
+    cv2.line(frame, (cx + 12, cy), (cx + 12 + tick_len, cy), bright_white, 2, cv2.LINE_AA)
+    cv2.line(frame, (cx, cy - 12 - tick_len), (cx, cy - 12), bright_white, 2, cv2.LINE_AA)
+    cv2.line(frame, (cx, cy + 12), (cx, cy + 12 + tick_len), bright_white, 2, cv2.LINE_AA)
+
+    # ---------------------------------------------------------
+    # 7. Dual Expanding Pulse Wavefront Rings
+    # ---------------------------------------------------------
+    pulse1 = int(current_radius * ((ticks * 2.0) % 1.0))
+    pulse2 = int(current_radius * (((ticks * 2.0) + 0.5) % 1.0))
+
+    cv2.circle(frame, (cx, cy), pulse1, bright_white, 1, cv2.LINE_AA)
+    cv2.circle(frame, (cx, cy), pulse2, silk_silver, 1, cv2.LINE_AA)
+
+    return frame
+
+
+
+
