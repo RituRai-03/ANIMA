@@ -12,7 +12,7 @@ from actions.portal_action import execute_portal
 from actions.beam_action import execute_beam
 from ui.hud import draw_hud
 from actions.fireball_action import FireballAction
-from effects.fireball import draw_fireball
+from effects.fireball import draw_fireball, trigger_fireball_launch
 
 
 # ---------------------------------------------------------------------------
@@ -557,7 +557,8 @@ def main():
                     fireball_active = True
                     charge = fireball_state['charge']
                     fb_size = int(10 + charge * 25)
-                    draw_fireball(frame, fb_center, size=fb_size, angle=rotation_angle * 3)
+                    is_ready_status = (fireball_state['status'] == "READY")
+                    draw_fireball(frame, fb_center, size=fb_size, angle=rotation_angle * 3, charge=charge, is_ready=is_ready_status)
 
                     if fireball_state['status'] == "READY":
                         cv2.putText(frame, "READY!", (fb_center[0] - 30, fb_center[1] - fb_size - 10),
@@ -584,6 +585,7 @@ def main():
                         'max_life': 25
                     })
                     emit_particles(fb_center[0], fb_center[1], COLOR_ORANGE, count=12)
+                    trigger_fireball_launch(fb_center, (vx, vy))
 
                 hand_data = {
                     'index': i,
@@ -697,7 +699,7 @@ def main():
             life_ratio = fb['life'] / fb['max_life']
             fb_size = int(35 * life_ratio)
             if fb_size >= 5:
-                draw_fireball(frame, (int(fb['pos'][0]), int(fb['pos'][1])), size=fb_size, angle=rotation_angle * 4)
+                draw_fireball(frame, (int(fb['pos'][0]), int(fb['pos'][1])), size=fb_size, angle=rotation_angle * 4, charge=1.0, is_projectile=True, velocity=(fb['vel'][0], fb['vel'][1]))
                 emit_particles(int(fb['pos'][0]), int(fb['pos'][1]), COLOR_ORANGE, count=2)
 
             if fb['life'] <= 0:
