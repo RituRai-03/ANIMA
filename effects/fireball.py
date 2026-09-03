@@ -4,7 +4,8 @@ import random
 import numpy as np
 
 def draw_fireball(frame, center, size=35, angle=0):
-    x, y =center
+    x, y = center
+    size = max(5, int(size))
 
     #Outer glow
     for r in range(size + 25, size, -5):

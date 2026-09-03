@@ -9,8 +9,11 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from actions.portal_action import execute_portal
-from actions.fireball_action import execute_fireball
 from actions.beam_action import execute_beam
+from ui.hud import draw_hud
+from actions.fireball_action import FireballAction
+from effects.fireball import draw_fireball
+
 
 # ---------------------------------------------------------------------------
 # Model Asset Management for MediaPipe Tasks API
@@ -435,64 +438,7 @@ def draw_dual_reactor_core(img, palm_left, palm_right, angle):
 # ---------------------------------------------------------------------------
 # HUD Telemetry & Overlay Renderer
 # ---------------------------------------------------------------------------
-def draw_telemetry_hud(img, fps, hand_data_list, dual_mode_str, show_hud=True):
-    """Draws cyberpunk style HUD overlay with real-time tracking telemetry."""
-    if not show_hud:
-        return
 
-    h, w, _ = img.shape
-
-    # Top Header Bar
-    overlay = img.copy()
-    cv2.rectangle(overlay, (0, 0), (w, 45), COLOR_DARK_BG, -1)
-    cv2.addWeighted(overlay, 0.75, img, 0.25, 0, img)
-    
-    cv2.line(img, (0, 45), (w, 45), COLOR_CYAN, 1, cv2.LINE_AA)
-    cv2.putText(img, "SYSTEM: AR DUAL-HAND TRACKING ENGINE", (20, 28),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.55, COLOR_CYAN, 2)
-
-    # FPS Counter (Top Right)
-    fps_str = f"FPS: {fps:.1f}"
-    cv2.putText(img, fps_str, (w - 130, 28),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.55, COLOR_NEON_GREEN, 2)
-
-    # Left Telemetry Panel
-    panel_w, panel_h = 280, 40 + len(hand_data_list) * 55 + (35 if dual_mode_str else 0)
-    overlay_panel = img.copy()
-    cv2.rectangle(overlay_panel, (15, 60), (15 + panel_w, 60 + panel_h), COLOR_DARK_BG, -1)
-    cv2.addWeighted(overlay_panel, 0.7, img, 0.3, 0, img)
-    cv2.rectangle(img, (15, 60), (15 + panel_w, 60 + panel_h), COLOR_CYAN, 1, cv2.LINE_AA)
-
-    # Header in panel
-    num_hands = len(hand_data_list)
-    cv2.putText(img, f"ACTIVE HANDS: {num_hands} / 2 DETECTED", (25, 82),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.45, COLOR_WHITE, 1)
-    cv2.line(img, (25, 90), (15 + panel_w - 10, 90), (70, 70, 70), 1)
-
-    curr_y = 110
-    for idx, hand in enumerate(hand_data_list):
-        label = hand['label'] # "Left" or "Right"
-        gesture = hand['gesture']
-        score = hand['score']
-        color = hand['color']
-
-        hand_title = f"HAND {idx+1}: {label.upper()} ({score*100:.0f}%)"
-        cv2.putText(img, hand_title, (25, curr_y),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
-        
-        gest_text = f"GESTURE: {gesture}"
-        cv2.putText(img, gest_text, (35, curr_y + 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, COLOR_WHITE, 1)
-        curr_y += 50
-
-    if dual_mode_str:
-        cv2.line(img, (25, curr_y - 10), (15 + panel_w - 10, curr_y - 10), COLOR_YELLOW, 1)
-        cv2.putText(img, f"DUAL MODE: {dual_mode_str}", (25, curr_y + 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, COLOR_YELLOW, 2)
-
-    # Controls Hint Footer
-    cv2.putText(img, "[ESC/Q] Exit  |  [H] Toggle HUD", (20, h - 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (180, 180, 180), 1)
 
 # ---------------------------------------------------------------------------
 # Main Execution Loop
@@ -512,13 +458,16 @@ def main():
     detector = vision.HandLandmarker.create_from_options(options)
 
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 540)
 
     rotation_angle = 0
     show_hud = True
     prev_time = time.time()
     fps = 0.0
+
+    fireball_actions = [FireballAction(), FireballAction()]
+    active_fireballs = []
 
     print("\n=======================================================")
     print("   AR Hand Tracking 3D Engine Initialized (Dual Hand)   ")
@@ -568,7 +517,6 @@ def main():
 
             for i in range(num_detected):
                 landmarks = results.hand_landmarks[i]
-                # landmarks = smooth_landmarks(landmarks, i)
                 
                 # Fetch handedness label & score
                 handedness_cat = results.handedness[i][0]
@@ -589,14 +537,53 @@ def main():
 
                 palm_px = get_palm_center_px(landmarks, w, h)
                 index_tip_px = get_landmark_px(landmarks[8], w, h)
+                middle_tip_px = get_landmark_px(landmarks[12], w, h)
                 thumb_tip_px = get_landmark_px(landmarks[4], w, h)
                 pinky_tip_px = get_landmark_px(landmarks[20], w, h)
 
-                # Add index finger to glowing trail
-                # add_finger_trail(index_tip_px, secondary_color, i)
+                # Fireball fingertip position (between index and middle fingertips)
+                fb_center = ((index_tip_px[0] + middle_tip_px[0]) // 2, (index_tip_px[1] + middle_tip_px[1]) // 2)
 
                 # Emit subtle particles at fingertip
                 emit_particles(index_tip_px[0], index_tip_px[1], secondary_color, count=1)
+
+                fb_action = fireball_actions[i] if i < len(fireball_actions) else FireballAction()
+                fireball_state = fb_action.update(landmarks, dt=dt if dt > 0 else 1/60)
+
+                fireball_active = False
+
+                # Handle Fireball Charging & Ready Visualization
+                if fireball_state['active'] or fireball_state['charge'] > 0:
+                    fireball_active = True
+                    charge = fireball_state['charge']
+                    fb_size = int(10 + charge * 25)
+                    draw_fireball(frame, fb_center, size=fb_size, angle=rotation_angle * 3)
+
+                    if fireball_state['status'] == "READY":
+                        cv2.putText(frame, "READY!", (fb_center[0] - 30, fb_center[1] - fb_size - 10),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 140, 255), 2, cv2.LINE_AA)
+                    elif fireball_state['status'] == "CHARGING":
+                        cv2.putText(frame, f"CHARGING {int(charge * 100)}%", (fb_center[0] - 45, fb_center[1] - fb_size - 10),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 230, 255), 1, cv2.LINE_AA)
+
+                # Handle Fireball Launch upon gesture release after READY
+                if fireball_state['fire_requested']:
+                    dx = fb_center[0] - palm_px[0]
+                    dy = fb_center[1] - palm_px[1]
+                    dist = math.hypot(dx, dy)
+                    if dist > 0:
+                        vx = (dx / dist) * 18.0
+                        vy = (dy / dist) * 18.0
+                    else:
+                        vx, vy = 0.0, -18.0
+
+                    active_fireballs.append({
+                        'pos': [float(fb_center[0]), float(fb_center[1])],
+                        'vel': [vx, vy],
+                        'life': 25,
+                        'max_life': 25
+                    })
+                    emit_particles(fb_center[0], fb_center[1], COLOR_ORANGE, count=12)
 
                 hand_data = {
                     'index': i,
@@ -609,7 +596,8 @@ def main():
                     'thumb_tip_px': thumb_tip_px,
                     'pinky_tip_px': pinky_tip_px,
                     'pinch_dist': pinch_dist,
-                    'color': primary_color
+                    'color': primary_color,
+                    'fireball_active': fireball_active
                 }
                 hand_data_list.append(hand_data)
 
@@ -676,7 +664,7 @@ def main():
                     scale = int(35 + (0.055 - hand['pinch_dist']) * 1000)
                     draw_3d_cube(frame, mid_x, mid_y, scale, rotation_angle, color)
 
-                    execute_fireball(frame, (idx_x, idx_y), rotation_angle)
+                    
 
                 elif gesture == "OPEN_PALM":
                     draw_cyber_shield(frame, palm_x, palm_y, 65, rotation_angle, color)
@@ -688,7 +676,8 @@ def main():
                     draw_pyramid_and_laser(frame, (idx_x, idx_y), (0, -1), rotation_angle, COLOR_YELLOW)
 
                 elif gesture == "PEACE":
-                    draw_3d_star(frame, idx_x, idx_y - 50, 35, rotation_angle, COLOR_NEON_GREEN)
+                    if not hand.get('fireball_active'):
+                        draw_3d_star(frame, idx_x, idx_y - 50, 35, rotation_angle, COLOR_NEON_GREEN)
 
                 elif gesture == "ROCK":
                     draw_electric_arcs(frame, (idx_x, idx_y), hand['pinky_tip_px'], COLOR_MAGENTA)
@@ -699,6 +688,21 @@ def main():
                     b_color = COLOR_NEON_GREEN if is_up else COLOR_RED
                     draw_status_badge(frame, hand['thumb_tip_px'][0], hand['thumb_tip_px'][1] - 40, is_up, b_color)
 
+        # Update and render flying fireball projectiles
+        for fb in active_fireballs[:]:
+            fb['pos'][0] += fb['vel'][0]
+            fb['pos'][1] += fb['vel'][1]
+            fb['life'] -= 1
+
+            life_ratio = fb['life'] / fb['max_life']
+            fb_size = int(35 * life_ratio)
+            if fb_size >= 5:
+                draw_fireball(frame, (int(fb['pos'][0]), int(fb['pos'][1])), size=fb_size, angle=rotation_angle * 4)
+                emit_particles(int(fb['pos'][0]), int(fb['pos'][1]), COLOR_ORANGE, count=2)
+
+            if fb['life'] <= 0:
+                active_fireballs.remove(fb)
+
         # # Draw glowing finger trails
         # draw_finger_trails(frame)
 
@@ -706,7 +710,26 @@ def main():
         update_and_draw_particles(frame)
 
         # Render HUD Overlay
-        draw_telemetry_hud(frame, fps, hand_data_list, dual_mode_str, show_hud)
+        
+        if show_hud:
+         hud_hand_info = []
+
+         for hand in hand_data_list:
+             hud_hand_info.append({
+                 "label": f"HAND {hand['index'] + 1}: {hand['label'].upper()}",
+                 "confidence": hand["score"] * 100,
+                 "gesture": hand["gesture"],
+                 "color": hand["color"]
+            })
+
+        draw_hud(
+           frame,
+           fps,
+           len(hand_data_list),
+           2,
+           hud_hand_info,
+          dual_mode_str
+        )
 
         cv2.imshow("AR Hand Tracking 3D Engine", frame)
 
