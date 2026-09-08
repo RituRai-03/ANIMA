@@ -40,6 +40,7 @@ from effects.geometric import (
 
 # Gestures
 from gestures.classifier import classify_hand_gesture
+from gestures.stabilizer import GestureStabilizer
 
 # Core Utilities
 from core.utils import (
@@ -333,9 +334,9 @@ def main():
     options = vision.HandLandmarkerOptions(
         base_options=base_options,
         num_hands=2,
-        min_hand_detection_confidence=0.65,
-        min_hand_presence_confidence=0.65,
-        min_tracking_confidence=0.65
+        min_hand_detection_confidence=0.75,
+        min_hand_presence_confidence=0.70,
+        min_tracking_confidence=0.70
     )
 
     detector = vision.HandLandmarker.create_from_options(
@@ -385,6 +386,13 @@ def main():
     ]
 
     active_web_projectiles = []
+
+    # Gesture stability system
+
+    gesture_stabilizers = [
+        GestureStabilizer(required_frames=3),
+        GestureStabilizer(required_frames=3)
+    ]
 
     # ---------------------------------------------------------------
     # Console Information
@@ -605,6 +613,10 @@ def main():
                     classify_hand_gesture(
                         landmarks
                     )
+                )
+
+                stable_gesture = gesture_stabilizers[i].update(
+                    gesture
                 )
 
                 # -------------------------------------------------------
@@ -864,7 +876,11 @@ def main():
                     "index": i,
                     "label": label,
                     "score": score,
-                    "gesture": gesture,
+                    "gesture": (
+                        "FIREBALL" if fireball_active
+                        else "WEB" if web_active
+                        else stable_gesture
+                    ),
                     "landmarks": landmarks,
 
                     "palm_px": palm_px,

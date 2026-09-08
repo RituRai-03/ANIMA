@@ -27,54 +27,73 @@ def draw_header(frame, fps):
     cv2.rectangle(
         overlay,
         (0, 0),
-        (w, 45),
+        (w, 50),
         COLOR_DARK,
         -1
     )
 
     cv2.addWeighted(
         overlay,
-        0.70,
+        0.78,
         frame,
-        0.30,
+        0.22,
         0,
         frame
     )
 
-    # Cyan separator
+    # Top cyan accent line
     cv2.line(
         frame,
-        (0, 45),
-        (w, 45),
+        (0, 49),
+        (w, 49),
         COLOR_CYAN,
-        1,
+        2,
+        cv2.LINE_AA
+    )
+
+    # System status indicator
+    cv2.circle(
+        frame,
+        (18, 24),
+        5,
+        COLOR_GREEN,
+        -1,
         cv2.LINE_AA
     )
 
     # System title
     cv2.putText(
         frame,
-        "SYSTEM: AR DUAL-HAND TRACKING ENGINE",
-        (28, 29),
+        "AR DUAL-HAND TRACKING ENGINE",
+        (32, 30),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.65,
+        0.60,
         COLOR_CYAN,
         2,
+        cv2.LINE_AA
+    )
+
+    # FPS separator
+    cv2.line(
+        frame,
+        (w - 105, 12),
+        (w - 105, 38),
+        COLOR_CYAN,
+        1,
         cv2.LINE_AA
     )
 
     # FPS
     cv2.putText(
         frame,
-        f"FPS: {fps:.1f}",
-        (w - 130, 29),
+        f"{fps:.1f} FPS",
+        (w - 92, 30),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.55,
+        0.50,
         COLOR_GREEN,
         2,
         cv2.LINE_AA
     )
-
 
 # ============================================================
 # HAND INFORMATION PANEL
@@ -89,10 +108,14 @@ def draw_hand_panel(
 
     x1 = 23
     y1 = 90
-    x2 = 303
+    x2 = 315
 
-    # Dynamic panel height
-    panel_height = 90 + len(hand_info) * 52
+    # Compact panel when no hands are detected
+    if not hand_info:
+        panel_height = 70
+    else:
+        panel_height = 82 + len(hand_info) * 55
+
     y2 = y1 + panel_height
 
     overlay = frame.copy()
@@ -107,9 +130,9 @@ def draw_hand_panel(
 
     cv2.addWeighted(
         overlay,
-        0.70,
+        0.72,
         frame,
-        0.30,
+        0.28,
         0,
         frame
     )
@@ -120,23 +143,59 @@ def draw_hand_panel(
         (x1, y1),
         (x2, y2),
         COLOR_CYAN,
-        1
+        1,
+        cv2.LINE_AA
+    )
+
+    # Header line
+    cv2.line(
+        frame,
+        (x1, y1 + 35),
+        (x2, y1 + 35),
+        COLOR_CYAN,
+        1,
+        cv2.LINE_AA
     )
 
     # Active hands
     cv2.putText(
         frame,
-        f"ACTIVE HANDS: {hands_count} / {max_hands} DETECTED",
-        (33, y1 + 25),
+        f"HANDS  {hands_count} / {max_hands}",
+        (x1 + 12, y1 + 24),
         cv2.FONT_HERSHEY_SIMPLEX,
-        0.48,
+        0.50,
         COLOR_WHITE,
         1,
         cv2.LINE_AA
     )
 
+    # No hand detected
+    if not hand_info:
+
+        cv2.circle(
+            frame,
+            (x1 + 18, y1 + 53),
+            4,
+            COLOR_YELLOW,
+            -1,
+            cv2.LINE_AA
+        )
+
+        cv2.putText(
+            frame,
+            "WAITING FOR HAND...",
+            (x1 + 30, y1 + 57),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.43,
+            COLOR_YELLOW,
+            1,
+            cv2.LINE_AA
+        )
+
+        return
+
     # Hand information
-    y = y1 + 55
+    y = y1 + 60
 
     for info in hand_info:
 
@@ -145,30 +204,41 @@ def draw_hand_panel(
         gesture = info.get("gesture", "UNKNOWN")
         color = info.get("color", COLOR_CYAN)
 
+        # Hand indicator
+        cv2.circle(
+            frame,
+            (x1 + 16, y - 5),
+            4,
+            color,
+            -1,
+            cv2.LINE_AA
+        )
+
+        # Hand + confidence
         cv2.putText(
             frame,
-            f"{label} ({confidence:.0f}%)",
-            (33, y),
+            f"{label}  {confidence:.0f}%",
+            (x1 + 28, y),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.48,
+            0.46,
             color,
             1,
             cv2.LINE_AA
         )
 
+        # Gesture
         cv2.putText(
             frame,
-            f"GESTURE: {gesture}",
-            (43, y + 22),
+            f"GESTURE  {gesture}",
+            (x1 + 28, y + 22),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.43,
+            0.42,
             COLOR_WHITE,
             1,
             cv2.LINE_AA
         )
 
-        y += 52
-
+        y += 55
 
 # ============================================================
 # DUAL MODE
@@ -182,22 +252,70 @@ def draw_dual_mode(frame, mode):
     h, w = frame.shape[:2]
 
     # Bottom-left position
-    x = 33
-    y = h - 75
+    x = 23
+    y = h - 58
 
-    cv2.line(
+    # Mode label
+    label = f"DUAL MODE  //  {mode}"
+
+    # Measure text for a dynamic panel
+    (text_w, text_h), _ = cv2.getTextSize(
+        label,
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.50,
+        1
+    )
+
+    panel_x1 = x
+    panel_y1 = y - 30
+    panel_x2 = x + text_w + 30
+    panel_y2 = y + 12
+
+    # Transparent background
+    overlay = frame.copy()
+
+    cv2.rectangle(
+        overlay,
+        (panel_x1, panel_y1),
+        (panel_x2, panel_y2),
+        COLOR_DARK,
+        -1
+    )
+
+    cv2.addWeighted(
+        overlay,
+        0.78,
         frame,
-        (x, y - 17),
-        (295, y - 17),
+        0.22,
+        0,
+        frame
+    )
+
+    # Border
+    cv2.rectangle(
+        frame,
+        (panel_x1, panel_y1),
+        (panel_x2, panel_y2),
         COLOR_YELLOW,
         1,
         cv2.LINE_AA
     )
 
+    # Active indicator
+    cv2.circle(
+        frame,
+        (x + 12, y - 9),
+        4,
+        COLOR_YELLOW,
+        -1,
+        cv2.LINE_AA
+    )
+
+    # Mode text
     cv2.putText(
         frame,
-        f"DUAL MODE: {mode}",
-        (x, y),
+        label,
+        (x + 23, y - 4),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.50,
         COLOR_YELLOW,
