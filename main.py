@@ -516,6 +516,12 @@ def main():
 
         profile_start = time.perf_counter()
 
+        profile_mp_start = time.perf_counter()
+
+        profile_hand_effects = 0.0
+        profile_projectiles = 0.0
+        profile_particles = 0.0 
+
         # rgb_frame = cv2.cvtColor(
         #     frame,
         #     cv2.COLOR_BGR2RGB
@@ -552,6 +558,7 @@ def main():
             
 
         profile_detection = time.perf_counter() - profile_start
+        profile_mp = time.perf_counter() - profile_mp_start
 
         # ---------------------------------------------------------------
         # Animation Rotation
@@ -926,9 +933,11 @@ def main():
                     "web_hold_time": web_state.get("hold_time", 0.0)
                 }
 
-                hand_data_list.append(
-                    hand_data
-                )
+                # hand_data_list.append(
+                #     hand_data
+                # )
+
+                profile_effect_start = time.perf_counter()
 
             # ===========================================================
             # DUAL-HAND INTERACTIVITY
@@ -1069,6 +1078,8 @@ def main():
                         h2["palm_px"],
                         rotation_angle
                     )
+
+                    profile_effect_start = time.perf_counter()
 
             # ===========================================================
             # SINGLE-HAND AR RENDERINGS
@@ -1286,6 +1297,8 @@ def main():
                         b_color
                     )
 
+                    
+
         # =================================================================
         # FIREBALL PROJECTILES
         # =================================================================
@@ -1371,15 +1384,25 @@ def main():
             if proj["life"] <= 0:
                 active_web_projectiles.remove(proj)
 
+
+            profile_projectiles = time.perf_counter() - profile_projectile_start 
+
+                
+
         # =================================================================
         # Particle Animation
         # =================================================================
+       
+        profile_particle_start = time.perf_counter()
 
         update_and_draw_particles(
-            frame
+               frame
         )
 
+        profile_particles = time.perf_counter() - profile_particle_start
+
         profile_render = time.perf_counter() - profile_start
+        
 
         # =================================================================
         # HUD
@@ -1418,7 +1441,8 @@ def main():
 
         cv2.putText(
             frame,
-            f"DET {profile_detection * 1000:.0f}ms RENDER {profile_render * 1000:.0f}ms",
+            f"MP {profile_mp * 1000:.0f}ms FX {profile_hand_effects * 1000:.0f}ms "
+            f"PROJ {profile_projectiles * 1000:.0f}ms PRT {profile_particles * 1000:.0f}ms",
             (330, 25),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.45,
