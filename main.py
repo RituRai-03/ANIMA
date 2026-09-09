@@ -1297,7 +1297,10 @@ def main():
                         b_color
                     )
 
+
                     
+
+        profile_projectile_start = time.perf_counter()          
 
         # =================================================================
         # FIREBALL PROJECTILES
@@ -1385,7 +1388,7 @@ def main():
                 active_web_projectiles.remove(proj)
 
 
-            profile_projectiles = time.perf_counter() - profile_projectile_start 
+            profile_projectiles = time.perf_counter() - profile_projectile_start()
 
                 
 

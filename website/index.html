@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hand-Tracking AR UI | Ritu Rai</title>
+
+    <meta
+        name="description"
+        content="A real-time hand-tracking AR interface built with Python, OpenCV and MediaPipe."
+    >
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================================================
+         NAVIGATION
+    ========================================================== -->
+
+    <header class="navbar">
+        <div class="nav-container">
+
+            <a href="#" class="logo">
+                <span class="logo-bracket">&lt;</span>
+                AR.UI
+                <span class="logo-bracket">/&gt;</span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="#about">About</a>
+                <a href="#gestures">Gestures</a>
+                <a href="#effects">Effects</a>
+                <a href="#technology">Technology</a>
+                <a href="#demo">Demo</a>
+            </nav>
+
+            <a
+                href="https://github.com/RituRai-03/Hand-Tracking-AR-UI"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="nav-github"
+            >
+                GitHub ↗
+            </a>
+
+        </div>
+    </header>
+
+
+<!-- =========================================================
+     HERO SECTION
+========================================================= -->
+
+<section class="hero">
+
+    <!-- COSMIC PARTICLES -->
+    <div class="cosmic-particles" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- FLOATING MYSTIC SYMBOLS -->
+    <div class="energy-symbols" aria-hidden="true">
+        <span>✦</span>
+        <span>◇</span>
+        <span>◈</span>
+        <span>△</span>
+        <span>✧</span>
+        <span>○</span>
+    </div>
+
+    <div class="hero-grid">
+
+        <!-- HERO CONTENT -->
+        <div class="hero-content">
+
+            <div class="status-line">
+                <span class="status-dot"></span>
+                SYSTEM ONLINE
+            </div>
+
+            <p class="eyebrow">
+                REAL-TIME COMPUTER VISION
+            </p>
+
+            <h1>
+                Hand Tracking
+                <span>AR UI</span>
+            </h1>
+
+            <p class="hero-description">
+                An interactive augmented reality interface that
+                transforms hand gestures into cinematic visual effects
+                using computer vision.
+            </p>
+
+            <div class="hero-tech">
+                <span>Python</span>
+                <span>OpenCV</span>
+                <span>MediaPipe</span>
+            </div>
+
+            <div class="hero-buttons">
+
+                <a href="#demo" class="btn btn-primary">
+                    Explore Project
+                    <span>→</span>
+                </a>
+
+                <a
+                    href="https://github.com/RituRai-03/Hand-Tracking-AR-UI"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-secondary"
+                >
+                    View GitHub
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             AR VISUAL
+        ====================================================== -->
+
+        <div class="hero-visual">
+
+            <div class="hud-frame">
+
+                <div class="hud-corner top-left"></div>
+                <div class="hud-corner top-right"></div>
+                <div class="hud-corner bottom-left"></div>
+                <div class="hud-corner bottom-right"></div>
+
+                <div class="hud-label top-label">
+                    HAND_TRACKING // ACTIVE
+                </div>
+
+                <div class="hud-center">
+
+                    <div class="outer-ring"></div>
+                    <div class="middle-ring"></div>
+                    <div class="inner-ring"></div>
+
+                    <div class="crosshair horizontal"></div>
+                    <div class="crosshair vertical"></div>
+
+                    <div class="core">
+                        <span>AR</span>
+                    </div>
+
+                </div>
+
+                <div class="hud-data data-left">
+                    <span>TRACK</span>
+                    <strong>2 HANDS</strong>
+                </div>
+
+                <div class="hud-data data-right">
+                    <span>MODE</span>
+                    <strong>REALTIME</strong>
+                </div>
+
+                <div class="scan-line"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+        <!-- =====================================================
+             ABOUT
+        ====================================================== -->
+
+        <section id="about" class="section">
+
+            <div class="section-heading">
+                <span>01</span>
+                <div>
+                    <p class="section-label">SYSTEM OVERVIEW</p>
+                    <h2>Turning gestures into interfaces.</h2>
+                </div>
+            </div>
+
+            <div class="about-grid">
+
+                <div class="about-main">
+
+                    <p class="large-text">
+                        Hand-Tracking AR UI is a real-time computer vision
+                        project that uses hand landmarks and gesture
+                        recognition to control an augmented reality interface.
+                    </p>
+
+                    <p>
+                        Instead of traditional mouse and keyboard interaction,
+                        the system interprets natural hand movements and maps
+                        them to interactive visual effects.
+                    </p>
+
+                </div>
+
+                <div class="about-stats">
+
+                    <div class="stat-card">
+                        <strong>21</strong>
+                        <span>Hand Landmarks</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <strong>2</strong>
+                        <span>Hands Supported</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <strong>10+</strong>
+                        <span>Interactive Gestures</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <strong>3D</strong>
+                        <span>AR Visual Effects</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             GESTURES
+        ====================================================== -->
+
+        <section id="gestures" class="section">
+
+            <div class="section-heading">
+                <span>02</span>
+                <div>
+                    <p class="section-label">GESTURE ENGINE</p>
+                    <h2>Hands become controls.</h2>
+                </div>
+            </div>
+
+            <div class="gesture-grid">
+
+                <article class="gesture-card">
+                    <div class="gesture-icon">✦</div>
+                    <h3>Pinch</h3>
+                    <p>Controls the dynamic 3D wireframe cube.</p>
+                </article>
+
+                <article class="gesture-card">
+                    <div class="gesture-icon">◉</div>
+                    <h3>Open Palm</h3>
+                    <p>Activates the Cyber HUD Shield and dual portal system.</p>
+                </article>
+
+                <article class="gesture-card">
+                    <div class="gesture-icon">●</div>
+                    <h3>Fist</h3>
+                    <p>Creates a pulsing 3D energy core.</p>
+                </article>
+
+                <article class="gesture-card">
+                    <div class="gesture-icon">➤</div>
+                    <h3>Point</h3>
+                    <p>Activates the rotating pyramid and fingertip laser.</p>
+                </article>
+
+                <article class="gesture-card">
+                    <div class="gesture-icon">Ⅱ</div>
+                    <h3>Peace</h3>
+                    <p>Generates the floating 3D star effect.</p>
+                </article>
+
+                <article class="gesture-card">
+                    <div class="gesture-icon">⚡</div>
+                    <h3>Rock</h3>
+                    <p>Produces electric plasma arcs around the hand.</p>
+                </article>
+
+                <article class="gesture-card">
+                    <div class="gesture-icon">↑</div>
+                    <h3>Thumbs Up</h3>
+                    <p>Displays the holographic LIKE badge.</p>
+                </article>
+
+                <article class="gesture-card">
+                    <div class="gesture-icon">↓</div>
+                    <h3>Thumbs Down</h3>
+                    <p>Displays the holographic DISLIKE badge.</p>
+                </article>
+
+                <article class="gesture-card special">
+                    <div class="gesture-icon">🔥</div>
+                    <h3>Fireball</h3>
+                    <p>Charges and launches a cinematic fireball projectile.</p>
+                </article>
+
+                <article class="gesture-card special">
+                    <div class="gesture-icon">🕸</div>
+                    <h3>Mystic Web</h3>
+                    <p>Combines Spider-Man web shooting with a mystic web network.</p>
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             AR EFFECTS
+        ====================================================== -->
+
+        <section id="effects" class="section effects-section">
+
+            <div class="section-heading">
+                <span>03</span>
+                <div>
+                    <p class="section-label">VISUAL ENGINE</p>
+                    <h2>Cinematic AR effects.</h2>
+                </div>
+            </div>
+
+            <div class="effects-grid">
+
+                <div class="effect-card effect-large">
+                    <div class="effect-number">01</div>
+                    <div class="effect-symbol">◌</div>
+                    <h3>Mystic Portal</h3>
+                    <p>
+                        Rotating rings, mystical runes, particles and
+                        cinematic energy animation.
+                    </p>
+                </div>
+
+                <div class="effect-card">
+                    <div class="effect-number">02</div>
+                    <div class="effect-symbol">⚡</div>
+                    <h3>Plasma Beam</h3>
+                    <p>
+                        Dynamic energy tether connecting both hands.
+                    </p>
+                </div>
+
+                <div class="effect-card">
+                    <div class="effect-number">03</div>
+                    <div class="effect-symbol">🔥</div>
+                    <h3>Fireball</h3>
+                    <p>
+                        Charged projectile with particles and impact effects.
+                    </p>
+                </div>
+
+                <div class="effect-card">
+                    <div class="effect-number">04</div>
+                    <div class="effect-symbol">🕸</div>
+                    <h3>Mystic Web</h3>
+                    <p>
+                        Web network, projectile motion and shockwave effects.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             TECHNOLOGY
+        ====================================================== -->
+
+        <section id="technology" class="section">
+
+            <div class="section-heading">
+                <span>04</span>
+                <div>
+                    <p class="section-label">TECH STACK</p>
+                    <h2>Built with computer vision.</h2>
+                </div>
+            </div>
+
+            <div class="technology-grid">
+
+                <div class="technology-card">
+                    <span class="tech-index">01</span>
+                    <h3>Python</h3>
+                    <p>
+                        Core programming language powering the application
+                        and gesture logic.
+                    </p>
+                </div>
+
+                <div class="technology-card">
+                    <span class="tech-index">02</span>
+                    <h3>OpenCV</h3>
+                    <p>
+                        Real-time camera capture, image processing and
+                        AR rendering.
+                    </p>
+                </div>
+
+                <div class="technology-card">
+                    <span class="tech-index">03</span>
+                    <h3>MediaPipe</h3>
+                    <p>
+                        Real-time hand landmark detection and tracking.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             ARCHITECTURE
+        ====================================================== -->
+
+        <section class="section architecture-section">
+
+            <div class="section-heading">
+                <span>05</span>
+                <div>
+                    <p class="section-label">PROJECT ARCHITECTURE</p>
+                    <h2>Modular by design.</h2>
+                </div>
+            </div>
+
+            <div class="architecture">
+
+                <div class="architecture-node">
+                    <span>01</span>
+                    <strong>Camera Input</strong>
+                    <small>OpenCV</small>
+                </div>
+
+                <div class="architecture-arrow">→</div>
+
+                <div class="architecture-node">
+                    <span>02</span>
+                    <strong>Hand Detection</strong>
+                    <small>MediaPipe</small>
+                </div>
+
+                <div class="architecture-arrow">→</div>
+
+                <div class="architecture-node">
+                    <span>03</span>
+                    <strong>Gesture Engine</strong>
+                    <small>Classifier + Stabilizer</small>
+                </div>
+
+                <div class="architecture-arrow">→</div>
+
+                <div class="architecture-node">
+                    <span>04</span>
+                    <strong>AR Effects</strong>
+                    <small>Visual Engine</small>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             DEMO
+        ====================================================== -->
+
+        <section id="demo" class="section demo-section">
+
+            <div class="demo-content">
+
+                <p class="section-label">LIVE PROJECT</p>
+
+                <h2>
+                    Ready to interact<br>
+                    with the interface?
+                </h2>
+
+                <p>
+                    Run the Python application locally and control the
+                    AR interface using your hands.
+                </p>
+
+                <div class="demo-buttons">
+
+                    <a
+                        href="https://github.com/RituRai-03/Hand-Tracking-AR-UI"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-primary"
+                    >
+                        View Source Code →
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div>
+                <a href="#" class="logo">
+                    <span class="logo-bracket">&lt;</span>
+                    AR.UI
+                    <span class="logo-bracket">/&gt;</span>
+                </a>
+
+                <p>
+                    Hand-Tracking AR Interface
+                </p>
+            </div>
+
+            <div class="footer-credit">
+                <span>Designed & Developed by</span>
+                <strong>Ritu Rai</strong>
+            </div>
+
+            <div class="footer-links">
+
+                <a
+                    href="https://github.com/RituRai-03"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    GitHub
+                </a>
+
+                <a href="#" target="_blank" rel="noopener noreferrer">
+                    LinkedIn
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="copyright">
+            © 2026 Ritu Rai. All Rights Reserved.
+        </div>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
