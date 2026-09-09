@@ -514,19 +514,44 @@ def main():
         # MediaPipe Detection
         # ---------------------------------------------------------------
 
-        rgb_frame = cv2.cvtColor(
+        profile_start = time.perf_counter()
+
+        # rgb_frame = cv2.cvtColor(
+        #     frame,
+        #     cv2.COLOR_BGR2RGB
+        # )
+
+        # mp_image = mp.Image(
+        #     image_format=mp.ImageFormat.SRGB,
+        #     data=rgb_frame
+        # )
+
+        # results = detector.detect(
+        #     mp_image
+        # )
+
+        # Keep display frame at 960x540.
+        # Use a smaller temporary frame only for MediaPipe detection.
+        detection_frame = cv2.resize(
             frame,
-            cv2.COLOR_BGR2RGB
+            (720, 405),
+            interpolation=cv2.INTER_AREA
         )
+
+        rgb = cv2.cvtColor(
+            detection_frame,
+            cv2.COLOR_BGR2RGB
+         )
 
         mp_image = mp.Image(
             image_format=mp.ImageFormat.SRGB,
-            data=rgb_frame
+            data=rgb
         )
 
-        results = detector.detect(
-            mp_image
-        )
+        results = detector.detect(mp_image)
+            
+
+        profile_detection = time.perf_counter() - profile_start
 
         # ---------------------------------------------------------------
         # Animation Rotation
@@ -1354,6 +1379,8 @@ def main():
             frame
         )
 
+        profile_render = time.perf_counter() - profile_start
+
         # =================================================================
         # HUD
         # =================================================================
@@ -1387,6 +1414,17 @@ def main():
             2,
             hud_hand_info,
             dual_mode_str
+        )
+
+        cv2.putText(
+            frame,
+            f"DET {profile_detection * 1000:.0f}ms RENDER {profile_render * 1000:.0f}ms",
+            (330, 25),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.45,
+            COLOR_WHITE,
+            1,
+            cv2.LINE_AA
         )
 
         # =================================================================
