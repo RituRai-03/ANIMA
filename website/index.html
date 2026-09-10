@@ -56,67 +56,86 @@
 
 <section class="hero">
 
-    <!-- COSMIC PARTICLES -->
-    <div class="cosmic-particles" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
+    <!-- COSMIC BACKGROUND -->
+    <div class="space-layer" aria-hidden="true">
+        <div class="stars stars-1"></div>
+        <div class="stars stars-2"></div>
+        <div class="stars stars-3"></div>
+        <div class="nebula nebula-one"></div>
+        <div class="nebula nebula-two"></div>
     </div>
 
-    <!-- FLOATING MYSTIC SYMBOLS -->
-    <div class="energy-symbols" aria-hidden="true">
-        <span>✦</span>
-        <span>◇</span>
-        <span>◈</span>
-        <span>△</span>
-        <span>✧</span>
-        <span>○</span>
+    <!-- GAME HUD -->
+    <div class="game-hud hud-top-left">
+        <span class="hud-label">SYSTEM</span>
+        <strong>ONLINE</strong>
     </div>
+
+    <div class="game-hud hud-top-right">
+        <span class="hud-label">CORE</span>
+        <strong>98%</strong>
+    </div>
+
+    <div class="game-hud hud-bottom-left">
+        <span class="hud-label">TRACKING</span>
+        <strong>2 HANDS</strong>
+    </div>
+
+    <div class="game-hud hud-bottom-right">
+        <span class="hud-label">MODE</span>
+        <strong>AR // REALTIME</strong>
+    </div>
+
 
     <div class="hero-grid">
 
-        <!-- HERO CONTENT -->
+        <!-- LEFT: GAME INTRO -->
         <div class="hero-content">
 
-            <div class="status-line">
-                <span class="status-dot"></span>
-                SYSTEM ONLINE
+            <div class="mission-tag">
+                <span></span>
+                MISSION // 001
             </div>
 
             <p class="eyebrow">
-                REAL-TIME COMPUTER VISION
+                ADVANCED HAND INTERFACE
             </p>
 
             <h1>
-                Hand Tracking
-                <span>AR UI</span>
+                CONTROL
+                <span>THE</span>
+                <strong>UNIVERSE.</strong>
             </h1>
 
             <p class="hero-description">
-                An interactive augmented reality interface that
-                transforms hand gestures into cinematic visual effects
-                using computer vision.
+                A real-time augmented reality system where
+                hand gestures become powers, weapons and
+                interactive energy.
             </p>
 
-            <div class="hero-tech">
-                <span>Python</span>
-                <span>OpenCV</span>
-                <span>MediaPipe</span>
+            <div class="ability-row">
+
+                <div class="ability">
+                    <span>01</span>
+                    <strong>GESTURES</strong>
+                </div>
+
+                <div class="ability">
+                    <span>02</span>
+                    <strong>ENERGY</strong>
+                </div>
+
+                <div class="ability">
+                    <span>03</span>
+                    <strong>AR FX</strong>
+                </div>
+
             </div>
 
             <div class="hero-buttons">
 
                 <a href="#demo" class="btn btn-primary">
-                    Explore Project
+                    ENTER SYSTEM
                     <span>→</span>
                 </a>
 
@@ -126,57 +145,84 @@
                     rel="noopener noreferrer"
                     class="btn btn-secondary"
                 >
-                    View GitHub
+                    SOURCE CODE
                 </a>
 
+            </div>
+
+            <div class="tech-status">
+                <span>PYTHON</span>
+                <i></i>
+                <span>OPENCV</span>
+                <i></i>
+                <span>MEDIAPIPE</span>
             </div>
 
         </div>
 
 
-        <!-- =====================================================
-             AR VISUAL
-        ====================================================== -->
-
+        <!-- RIGHT: AR REACTOR -->
         <div class="hero-visual">
 
-            <div class="hud-frame">
+            <div class="reactor">
 
-                <div class="hud-corner top-left"></div>
-                <div class="hud-corner top-right"></div>
-                <div class="hud-corner bottom-left"></div>
-                <div class="hud-corner bottom-right"></div>
-
-                <div class="hud-label top-label">
-                    HAND_TRACKING // ACTIVE
+                <!-- OUTER TARGETING RING -->
+                <div class="reactor-ring ring-outer">
+                    <span></span>
                 </div>
 
-                <div class="hud-center">
+                <!-- SECOND ENERGY RING -->
+                <div class="reactor-ring ring-middle">
+                    <span></span>
+                </div>
 
-                    <div class="outer-ring"></div>
-                    <div class="middle-ring"></div>
-                    <div class="inner-ring"></div>
+                <!-- INNER RING -->
+                <div class="reactor-ring ring-inner">
+                    <span></span>
+                </div>
 
-                    <div class="crosshair horizontal"></div>
-                    <div class="crosshair vertical"></div>
+                <!-- CROSSHAIR -->
+                <div class="reactor-crosshair horizontal"></div>
+                <div class="reactor-crosshair vertical"></div>
 
-                    <div class="core">
+                <!-- ENERGY CORE -->
+                <div class="reactor-core">
+
+                    <div class="core-orbit orbit-one"></div>
+                    <div class="core-orbit orbit-two"></div>
+
+                    <div class="core-center">
                         <span>AR</span>
                     </div>
 
                 </div>
 
-                <div class="hud-data data-left">
-                    <span>TRACK</span>
-                    <strong>2 HANDS</strong>
+                <!-- TARGET MARKERS -->
+                <div class="target-marker marker-one">+</div>
+                <div class="target-marker marker-two">+</div>
+                <div class="target-marker marker-three">+</div>
+                <div class="target-marker marker-four">+</div>
+
+            </div>
+
+
+            <!-- REACTOR TELEMETRY -->
+            <div class="reactor-data">
+
+                <div>
+                    <span>ENERGY</span>
+                    <strong>████████░░</strong>
                 </div>
 
-                <div class="hud-data data-right">
-                    <span>MODE</span>
-                    <strong>REALTIME</strong>
+                <div>
+                    <span>LINK</span>
+                    <strong>STABLE</strong>
                 </div>
 
-                <div class="scan-line"></div>
+                <div>
+                    <span>GESTURE</span>
+                    <strong>READY</strong>
+                </div>
 
             </div>
 
@@ -184,8 +230,19 @@
 
     </div>
 
-</section>
 
+    <!-- BOTTOM GAME BAR -->
+    <div class="hero-game-bar">
+
+        <span>HAND-TRACKING AR UI</span>
+
+        <div class="game-line"></div>
+
+        <span>RITU RAI // 2026</span>
+
+    </div>
+
+</section>
 
         <!-- =====================================================
              ABOUT
@@ -252,275 +309,921 @@
              GESTURES
         ====================================================== -->
 
-        <section id="gestures" class="section">
+        <section id="gestures" class="section ability-section">
 
-            <div class="section-heading">
-                <span>02</span>
-                <div>
-                    <p class="section-label">GESTURE ENGINE</p>
-                    <h2>Hands become controls.</h2>
+    <div class="section-header game-section-header">
+        <div>
+            <span class="section-kicker">ABILITY SYSTEM // 01</span>
+            <h2>CHOOSE YOUR <span>POWER</span></h2>
+            <p>Select a gesture ability to initialize its AR effect.</p>
+        </div>
+
+        <div class="ability-status">
+            <span class="status-dot"></span>
+            SYSTEM READY
+        </div>
+    </div>
+
+    <div class="ability-console">
+
+        <div class="ability-sidebar">
+            <div class="console-label">GESTURE LOADOUT</div>
+
+            <div class="loadout-item active">
+                <span class="loadout-key">01</span>
+                <span>CORE ABILITIES</span>
+            </div>
+
+            <div class="loadout-item">
+                <span class="loadout-key">02</span>
+                <span>COMBAT FX</span>
+            </div>
+
+            <div class="loadout-item">
+                <span class="loadout-key">03</span>
+                <span>MYSTIC FX</span>
+            </div>
+
+            <div class="loadout-item">
+                <span class="loadout-key">04</span>
+                <span>DUAL HAND</span>
+            </div>
+
+            <div class="console-readout">
+                <span>AVAILABLE</span>
+                <strong>10</strong>
+                <small>GESTURES</small>
+            </div>
+        </div>
+
+
+        <div class="ability-grid">
+
+            <article class="ability-card active" data-gesture="PINCH">
+                <div class="ability-number">01</div>
+                <div class="ability-icon">✦</div>
+
+                <div class="ability-info">
+                    <span class="ability-type">GEOMETRIC</span>
+                    <h3>PINCH</h3>
+                    <p>3D Holographic Cube</p>
                 </div>
-            </div>
 
-            <div class="gesture-grid">
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
 
-                <article class="gesture-card">
-                    <div class="gesture-icon">✦</div>
-                    <h3>Pinch</h3>
-                    <p>Controls the dynamic 3D wireframe cube.</p>
-                </article>
 
-                <article class="gesture-card">
-                    <div class="gesture-icon">◉</div>
-                    <h3>Open Palm</h3>
-                    <p>Activates the Cyber HUD Shield and dual portal system.</p>
-                </article>
+            <article class="ability-card" data-gesture="OPEN PALM">
+                <div class="ability-number">02</div>
+                <div class="ability-icon">◉</div>
 
-                <article class="gesture-card">
-                    <div class="gesture-icon">●</div>
-                    <h3>Fist</h3>
-                    <p>Creates a pulsing 3D energy core.</p>
-                </article>
+                <div class="ability-info">
+                    <span class="ability-type">DEFENSE</span>
+                    <h3>OPEN PALM</h3>
+                    <p>Cyber Shield System</p>
+                </div>
 
-                <article class="gesture-card">
-                    <div class="gesture-icon">➤</div>
-                    <h3>Point</h3>
-                    <p>Activates the rotating pyramid and fingertip laser.</p>
-                </article>
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
 
-                <article class="gesture-card">
-                    <div class="gesture-icon">Ⅱ</div>
-                    <h3>Peace</h3>
-                    <p>Generates the floating 3D star effect.</p>
-                </article>
 
-                <article class="gesture-card">
-                    <div class="gesture-icon">⚡</div>
-                    <h3>Rock</h3>
-                    <p>Produces electric plasma arcs around the hand.</p>
-                </article>
+            <article class="ability-card" data-gesture="FIST">
+                <div class="ability-number">03</div>
+                <div class="ability-icon">◆</div>
 
-                <article class="gesture-card">
-                    <div class="gesture-icon">↑</div>
-                    <h3>Thumbs Up</h3>
-                    <p>Displays the holographic LIKE badge.</p>
-                </article>
+                <div class="ability-info">
+                    <span class="ability-type">POWER</span>
+                    <h3>FIST</h3>
+                    <p>Energy Core Reactor</p>
+                </div>
 
-                <article class="gesture-card">
-                    <div class="gesture-icon">↓</div>
-                    <h3>Thumbs Down</h3>
-                    <p>Displays the holographic DISLIKE badge.</p>
-                </article>
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
 
-                <article class="gesture-card special">
-                    <div class="gesture-icon">🔥</div>
-                    <h3>Fireball</h3>
-                    <p>Charges and launches a cinematic fireball projectile.</p>
-                </article>
 
-                <article class="gesture-card special">
-                    <div class="gesture-icon">🕸</div>
-                    <h3>Mystic Web</h3>
-                    <p>Combines Spider-Man web shooting with a mystic web network.</p>
-                </article>
+            <article class="ability-card" data-gesture="POINT">
+                <div class="ability-number">04</div>
+                <div class="ability-icon">➤</div>
 
-            </div>
+                <div class="ability-info">
+                    <span class="ability-type">TARGET</span>
+                    <h3>POINT</h3>
+                    <p>Pyramid Laser System</p>
+                </div>
 
-        </section>
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
 
+
+            <article class="ability-card" data-gesture="PEACE">
+                <div class="ability-number">05</div>
+                <div class="ability-icon">✧</div>
+
+                <div class="ability-info">
+                    <span class="ability-type">HOLOGRAM</span>
+                    <h3>PEACE</h3>
+                    <p>Floating Octahedron</p>
+                </div>
+
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
+
+
+            <article class="ability-card" data-gesture="ROCK">
+                <div class="ability-number">06</div>
+                <div class="ability-icon">⚡</div>
+
+                <div class="ability-info">
+                    <span class="ability-type">ELECTRIC</span>
+                    <h3>ROCK</h3>
+                    <p>Plasma Arc System</p>
+                </div>
+
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
+
+
+            <article class="ability-card" data-gesture="THUMBS UP">
+                <div class="ability-number">07</div>
+                <div class="ability-icon">▲</div>
+
+                <div class="ability-info">
+                    <span class="ability-type">STATUS</span>
+                    <h3>THUMBS UP</h3>
+                    <p>Holographic Like Badge</p>
+                </div>
+
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
+
+
+            <article class="ability-card" data-gesture="THUMBS DOWN">
+                <div class="ability-number">08</div>
+                <div class="ability-icon">▼</div>
+
+                <div class="ability-info">
+                    <span class="ability-type">STATUS</span>
+                    <h3>THUMBS DOWN</h3>
+                    <p>Holographic Dislike Badge</p>
+                </div>
+
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
+
+
+            <article class="ability-card special-card" data-gesture="FIREBALL">
+                <div class="ability-number">09</div>
+                <div class="ability-icon">☄</div>
+
+                <div class="ability-info">
+                    <span class="ability-type">COMBAT FX</span>
+                    <h3>FIREBALL</h3>
+                    <p>Charged Mystic Projectile</p>
+                </div>
+
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
+
+
+            <article class="ability-card special-card" data-gesture="MYSTIC WEB">
+                <div class="ability-number">10</div>
+                <div class="ability-icon">◎</div>
+
+                <div class="ability-info">
+                    <span class="ability-type">MYSTIC FX</span>
+                    <h3>MYSTIC WEB</h3>
+                    <p>Spider Web Energy Network</p>
+                </div>
+
+                <div class="ability-energy">
+                    <span>ENERGY</span>
+                    <div><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+            </article>
+
+        </div>
+    </div>
+
+    <div class="ability-footer">
+        <span>SELECT ABILITY</span>
+        <span>◈</span>
+        <span>GESTURE DETECTION ACTIVE</span>
+        <span>◈</span>
+        <span>AR ENGINE ONLINE</span>
+    </div>
+
+</section>
 
         <!-- =====================================================
-             AR EFFECTS
-        ====================================================== -->
+     POWER ARSENAL
+====================================================== -->
 
-        <section id="effects" class="section effects-section">
+<section id="effects" class="section arsenal-section">
 
-            <div class="section-heading">
-                <span>03</span>
-                <div>
-                    <p class="section-label">VISUAL ENGINE</p>
-                    <h2>Cinematic AR effects.</h2>
-                </div>
+    <div class="section-header game-section-header">
+
+        <div>
+            <span class="section-kicker">ARSENAL SYSTEM // 02</span>
+
+            <h2>
+                POWER
+                <span>ARSENAL</span>
+            </h2>
+
+            <p>
+                Cinematic visual systems generated from real-time hand interaction.
+            </p>
+        </div>
+
+        <div class="arsenal-status">
+            <span class="status-dot"></span>
+            04 SYSTEMS ONLINE
+        </div>
+
+    </div>
+
+
+    <div class="arsenal-layout">
+
+        <!-- MAIN FEATURE -->
+        <div class="arsenal-feature">
+
+            <div class="arsenal-feature-top">
+                <span>PRIMARY SYSTEM</span>
+                <strong>01</strong>
             </div>
 
-            <div class="effects-grid">
+            <div class="portal-display">
 
-                <div class="effect-card effect-large">
-                    <div class="effect-number">01</div>
-                    <div class="effect-symbol">◌</div>
-                    <h3>Mystic Portal</h3>
-                    <p>
-                        Rotating rings, mystical runes, particles and
-                        cinematic energy animation.
-                    </p>
+                <div class="portal-ring portal-ring-one"></div>
+                <div class="portal-ring portal-ring-two"></div>
+                <div class="portal-ring portal-ring-three"></div>
+
+                <div class="portal-rune rune-one">✦</div>
+                <div class="portal-rune rune-two">◇</div>
+                <div class="portal-rune rune-three">✧</div>
+                <div class="portal-rune rune-four">◈</div>
+
+                <div class="portal-core">
+                    <span>PORTAL</span>
                 </div>
 
-                <div class="effect-card">
-                    <div class="effect-number">02</div>
-                    <div class="effect-symbol">⚡</div>
-                    <h3>Plasma Beam</h3>
+            </div>
+
+            <div class="arsenal-feature-info">
+
+                <div>
+                    <span class="arsenal-type">MYSTIC ENERGY SYSTEM</span>
+                    <h3>MYSTIC PORTAL</h3>
+                </div>
+
+                <p>
+                    Rotating rings, mystical runes, particles and
+                    cinematic energy animation.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- SECONDARY ARSENAL -->
+        <div class="arsenal-list">
+
+
+            <article class="arsenal-item active">
+
+                <div class="arsenal-index">
+                    02
+                </div>
+
+                <div class="arsenal-icon">
+                    ⚡
+                </div>
+
+                <div class="arsenal-info">
+
+                    <span>DUAL HAND SYSTEM</span>
+
+                    <h3>PLASMA BEAM</h3>
+
                     <p>
                         Dynamic energy tether connecting both hands.
                     </p>
+
+                    <div class="arsenal-meter">
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <span>POWER</span>
+                    </div>
+
                 </div>
 
-                <div class="effect-card">
-                    <div class="effect-number">03</div>
-                    <div class="effect-symbol">🔥</div>
-                    <h3>Fireball</h3>
+                <div class="arsenal-arrow">
+                    →
+                </div>
+
+            </article>
+
+
+            <article class="arsenal-item">
+
+                <div class="arsenal-index">
+                    03
+                </div>
+
+                <div class="arsenal-icon fire-icon">
+                    ◉
+                </div>
+
+                <div class="arsenal-info">
+
+                    <span>COMBAT SYSTEM</span>
+
+                    <h3>FIREBALL</h3>
+
                     <p>
                         Charged projectile with particles and impact effects.
                     </p>
+
+                    <div class="arsenal-meter">
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <span>POWER</span>
+                    </div>
+
                 </div>
 
-                <div class="effect-card">
-                    <div class="effect-number">04</div>
-                    <div class="effect-symbol">🕸</div>
-                    <h3>Mystic Web</h3>
+                <div class="arsenal-arrow">
+                    →
+                </div>
+
+            </article>
+
+
+            <article class="arsenal-item">
+
+                <div class="arsenal-index">
+                    04
+                </div>
+
+                <div class="arsenal-icon web-icon">
+                    ◎
+                </div>
+
+                <div class="arsenal-info">
+
+                    <span>MYSTIC COMBAT SYSTEM</span>
+
+                    <h3>MYSTIC WEB</h3>
+
                     <p>
                         Web network, projectile motion and shockwave effects.
                     </p>
+
+                    <div class="arsenal-meter">
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                        <span>POWER</span>
+                    </div>
+
                 </div>
 
-            </div>
+                <div class="arsenal-arrow">
+                    →
+                </div>
 
-        </section>
+            </article>
+
+        </div>
+
+    </div>
+
+
+    <div class="arsenal-footer">
+
+        <div>
+            <span>ARSENAL</span>
+            <strong>04</strong>
+        </div>
+
+        <div>
+            <span>ACTIVE EFFECTS</span>
+            <strong>04 / 04</strong>
+        </div>
+
+        <div>
+            <span>RENDER ENGINE</span>
+            <strong>ONLINE</strong>
+        </div>
+
+        <div>
+            <span>STATUS</span>
+            <strong>READY</strong>
+        </div>
+
+    </div>
+
+</section>
+
 
 
         <!-- =====================================================
              TECHNOLOGY
         ====================================================== -->
 
-        <section id="technology" class="section">
+        <section id="technology" class="section engine-section">
+    <div class="section-header game-section-header">
+        <div>
+            <span class="section-kicker">ENGINE CORE // 03</span>
+            <h2>THE <span>TECH CORE</span></h2>
+            <p>The systems powering real-time hand interaction and cinematic AR rendering.</p>
+        </div>
 
-            <div class="section-heading">
-                <span>04</span>
-                <div>
-                    <p class="section-label">TECH STACK</p>
-                    <h2>Built with computer vision.</h2>
-                </div>
+        <div class="engine-status">
+            <span class="status-dot"></span>
+            ALL SYSTEMS ONLINE
+        </div>
+    </div>
+
+    <div class="engine-layout">
+
+        <!-- CENTRAL CORE -->
+        <div class="engine-core-panel">
+
+            <div class="core-label top-left">
+                <span>PROCESSING</span>
+                <strong>98%</strong>
             </div>
 
-            <div class="technology-grid">
-
-                <div class="technology-card">
-                    <span class="tech-index">01</span>
-                    <h3>Python</h3>
-                    <p>
-                        Core programming language powering the application
-                        and gesture logic.
-                    </p>
-                </div>
-
-                <div class="technology-card">
-                    <span class="tech-index">02</span>
-                    <h3>OpenCV</h3>
-                    <p>
-                        Real-time camera capture, image processing and
-                        AR rendering.
-                    </p>
-                </div>
-
-                <div class="technology-card">
-                    <span class="tech-index">03</span>
-                    <h3>MediaPipe</h3>
-                    <p>
-                        Real-time hand landmark detection and tracking.
-                    </p>
-                </div>
-
+            <div class="core-label top-right">
+                <span>TRACKING</span>
+                <strong>21 PTS</strong>
             </div>
 
-        </section>
+            <div class="engine-reactor">
+                <div class="engine-ring ring-outer"></div>
+                <div class="engine-ring ring-middle"></div>
+                <div class="engine-ring ring-inner"></div>
+
+                <div class="engine-orbit orbit-one"></div>
+                <div class="engine-orbit orbit-two"></div>
+
+                <div class="engine-core-center">
+                    <span>AR</span>
+                    <small>ENGINE</small>
+                </div>
+
+                <div class="core-node node-one">01</div>
+                <div class="core-node node-two">02</div>
+                <div class="core-node node-three">03</div>
+            </div>
+
+            <div class="core-label bottom-left">
+                <span>LATENCY</span>
+                <strong>LOW</strong>
+            </div>
+
+            <div class="core-label bottom-right">
+                <span>MODE</span>
+                <strong>REALTIME</strong>
+            </div>
+
+        </div>
+
+
+        <!-- TECHNOLOGY MODULES -->
+        <div class="engine-modules">
+
+            <article class="engine-module active">
+                <div class="module-top">
+                    <span class="module-index">01</span>
+                    <span class="module-state">CORE</span>
+                </div>
+
+                <div class="module-icon">PY</div>
+
+                <div class="module-content">
+                    <h3>PYTHON</h3>
+                    <p>
+                        Core programming layer powering gesture logic,
+                        application flow and AR interaction.
+                    </p>
+                </div>
+
+                <div class="module-meter">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </article>
+
+
+            <article class="engine-module">
+                <div class="module-top">
+                    <span class="module-index">02</span>
+                    <span class="module-state">VISION</span>
+                </div>
+
+                <div class="module-icon">CV</div>
+
+                <div class="module-content">
+                    <h3>OPENCV</h3>
+                    <p>
+                        Real-time camera capture, frame processing
+                        and visual AR rendering.
+                    </p>
+                </div>
+
+                <div class="module-meter">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </article>
+
+
+            <article class="engine-module">
+                <div class="module-top">
+                    <span class="module-index">03</span>
+                    <span class="module-state">TRACKING</span>
+                </div>
+
+                <div class="module-icon">MP</div>
+
+                <div class="module-content">
+                    <h3>MEDIAPIPE</h3>
+                    <p>
+                        Detects and tracks 21 hand landmarks
+                        for real-time gesture recognition.
+                    </p>
+                </div>
+
+                <div class="module-meter">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </article>
+
+        </div>
+    </div>
+
+
+    <div class="engine-footer">
+        <div>
+            <span>VISION PIPELINE</span>
+            <strong>ACTIVE</strong>
+        </div>
+
+        <div>
+            <span>HAND LANDMARKS</span>
+            <strong>21 / HAND</strong>
+        </div>
+
+        <div>
+            <span>SUPPORTED HANDS</span>
+            <strong>02</strong>
+        </div>
+
+        <div>
+            <span>AR PIPELINE</span>
+            <strong>READY</strong>
+        </div>
+    </div>
+</section>
 
 
         <!-- =====================================================
              ARCHITECTURE
         ====================================================== -->
 
-        <section class="section architecture-section">
+        <section id="architecture" class="section mission-section">
+    <div class="section-header game-section-header">
+        <div>
+            <span class="section-kicker">MISSION PIPELINE // 04</span>
+            <h2>FROM <span>GESTURE</span> TO POWER</h2>
+            <p>Every interaction passes through a real-time vision pipeline before becoming an AR ability.</p>
+        </div>
 
-            <div class="section-heading">
-                <span>05</span>
-                <div>
-                    <p class="section-label">PROJECT ARCHITECTURE</p>
-                    <h2>Modular by design.</h2>
-                </div>
+        <div class="mission-status">
+            <span class="status-dot"></span>
+            PIPELINE ACTIVE
+        </div>
+    </div>
+
+    <div class="mission-pipeline">
+
+        <article class="pipeline-node active">
+            <div class="pipeline-number">01</div>
+            <div class="pipeline-icon">CAM</div>
+            <span class="pipeline-state">INPUT</span>
+            <h3>CAMERA</h3>
+            <p>Live video frames enter the AR system.</p>
+        </article>
+
+        <div class="pipeline-connector">
+            <span></span>
+            <i>›</i>
+        </div>
+
+        <article class="pipeline-node">
+            <div class="pipeline-number">02</div>
+            <div class="pipeline-icon">CV</div>
+            <span class="pipeline-state">VISION</span>
+            <h3>HAND TRACKING</h3>
+            <p>21 hand landmarks are detected in real time.</p>
+        </article>
+
+        <div class="pipeline-connector">
+            <span></span>
+            <i>›</i>
+        </div>
+
+        <article class="pipeline-node">
+            <div class="pipeline-number">03</div>
+            <div class="pipeline-icon">AI</div>
+            <span class="pipeline-state">ANALYSIS</span>
+            <h3>GESTURE</h3>
+            <p>Landmarks are interpreted as interaction states.</p>
+        </article>
+
+        <div class="pipeline-connector">
+            <span></span>
+            <i>›</i>
+        </div>
+
+        <article class="pipeline-node">
+            <div class="pipeline-number">04</div>
+            <div class="pipeline-icon">AR</div>
+            <span class="pipeline-state">ABILITY</span>
+            <h3>POWER</h3>
+            <p>The detected gesture activates an AR ability.</p>
+        </article>
+
+        <div class="pipeline-connector">
+            <span></span>
+            <i>›</i>
+        </div>
+
+        <article class="pipeline-node final-node">
+            <div class="pipeline-number">05</div>
+            <div class="pipeline-icon">FX</div>
+            <span class="pipeline-state">OUTPUT</span>
+            <h3>AR EFFECT</h3>
+            <p>Cinematic visuals appear instantly on screen.</p>
+        </article>
+
+    </div>
+
+    <div class="mission-console">
+
+        <div class="console-main">
+            <span class="console-label">LIVE EXECUTION FLOW</span>
+
+            <div class="console-flow">
+                <span>FRAME</span>
+                <b>→</b>
+                <span>LANDMARKS</span>
+                <b>→</b>
+                <span>GESTURE</span>
+                <b>→</b>
+                <span>ABILITY</span>
+                <b>→</b>
+                <span>EFFECT</span>
+            </div>
+        </div>
+
+        <div class="console-stats">
+            <div>
+                <span>INPUT</span>
+                <strong>VIDEO</strong>
             </div>
 
-            <div class="architecture">
-
-                <div class="architecture-node">
-                    <span>01</span>
-                    <strong>Camera Input</strong>
-                    <small>OpenCV</small>
-                </div>
-
-                <div class="architecture-arrow">→</div>
-
-                <div class="architecture-node">
-                    <span>02</span>
-                    <strong>Hand Detection</strong>
-                    <small>MediaPipe</small>
-                </div>
-
-                <div class="architecture-arrow">→</div>
-
-                <div class="architecture-node">
-                    <span>03</span>
-                    <strong>Gesture Engine</strong>
-                    <small>Classifier + Stabilizer</small>
-                </div>
-
-                <div class="architecture-arrow">→</div>
-
-                <div class="architecture-node">
-                    <span>04</span>
-                    <strong>AR Effects</strong>
-                    <small>Visual Engine</small>
-                </div>
-
+            <div>
+                <span>LANDMARKS</span>
+                <strong>21</strong>
             </div>
 
-        </section>
+            <div>
+                <span>HANDS</span>
+                <strong>02</strong>
+            </div>
 
+            <div>
+                <span>OUTPUT</span>
+                <strong>AR FX</strong>
+            </div>
+        </div>
+
+    </div>
+</section>
 
         <!-- =====================================================
              DEMO
         ====================================================== -->
 
-        <section id="demo" class="section demo-section">
+    <section id="demo" class="section arena-section">
+    <div class="arena-grid">
 
-            <div class="demo-content">
+        <!-- LEFT: MISSION INFO -->
+        <div class="arena-content">
+            <span class="section-kicker">FINAL PROTOCOL // 05</span>
 
-                <p class="section-label">LIVE PROJECT</p>
+            <div class="arena-status">
+                <span class="status-dot"></span>
+                AR SYSTEM READY
+            </div>
 
-                <h2>
-                    Ready to interact<br>
-                    with the interface?
-                </h2>
+            <h2>
+                ENTER THE
+                <span>AR ARENA.</span>
+            </h2>
 
-                <p>
-                    Run the Python application locally and control the
-                    AR interface using your hands.
-                </p>
+            <p class="arena-description">
+                Your hands are the controller. Your gestures are the commands.
+                Activate cinematic powers through real-time computer vision.
+            </p>
 
-                <div class="demo-buttons">
+            <div class="arena-abilities">
+                <div>
+                    <span>01</span>
+                    <strong>GESTURE CONTROL</strong>
+                </div>
 
-                    <a
-                        href="https://github.com/RituRai-03/Hand-Tracking-AR-UI"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn btn-primary"
-                    >
-                        View Source Code →
-                    </a>
+                <div>
+                    <span>02</span>
+                    <strong>REALTIME VISION</strong>
+                </div>
 
+                <div>
+                    <span>03</span>
+                    <strong>CINEMATIC FX</strong>
+                </div>
+            </div>
+
+            <div class="arena-actions">
+                <a
+                    href="https://github.com/RituRai-03/Hand-Tracking-AR-UI"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="arena-btn arena-btn-primary"
+                >
+                    <span>LAUNCH SYSTEM</span>
+                    <b>↗</b>
+                </a>
+
+                <a
+                    href="https://github.com/RituRai-03/Hand-Tracking-AR-UI"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="arena-btn"
+                >
+                    <span>VIEW SOURCE</span>
+                    <b>↗</b>
+                </a>
+            </div>
+        </div>
+
+
+        <!-- RIGHT: ARENA REACTOR -->
+        <div class="arena-visual">
+
+            <div class="arena-frame">
+
+                <div class="arena-corner corner-tl"></div>
+                <div class="arena-corner corner-tr"></div>
+                <div class="arena-corner corner-bl"></div>
+                <div class="arena-corner corner-br"></div>
+
+                <div class="arena-label arena-label-top">
+                    <span>CORE REACTOR</span>
+                    <strong>ONLINE</strong>
+                </div>
+
+                <div class="arena-reactor">
+
+                    <div class="arena-ring arena-ring-outer"></div>
+                    <div class="arena-ring arena-ring-middle"></div>
+                    <div class="arena-ring arena-ring-inner"></div>
+
+                    <div class="arena-crosshair"></div>
+
+                    <div class="arena-energy energy-one"></div>
+                    <div class="arena-energy energy-two"></div>
+                    <div class="arena-energy energy-three"></div>
+
+                    <div class="arena-core">
+                        <span>AR</span>
+                        <small>READY</small>
+                    </div>
+
+                    <div class="arena-node node-a">01</div>
+                    <div class="arena-node node-b">02</div>
+                    <div class="arena-node node-c">03</div>
+                    <div class="arena-node node-d">04</div>
+
+                </div>
+
+                <div class="arena-telemetry">
+                    <div>
+                        <span>FPS</span>
+                        <strong>REALTIME</strong>
+                    </div>
+
+                    <div>
+                        <span>HANDS</span>
+                        <strong>02</strong>
+                    </div>
+
+                    <div>
+                        <span>MODE</span>
+                        <strong>AR</strong>
+                    </div>
+                </div>
+
+                <div class="arena-label arena-label-bottom">
+                    <span>MISSION STATUS</span>
+                    <strong>READY TO DEPLOY</strong>
                 </div>
 
             </div>
 
-        </section>
+        </div>
+
+    </div>
+
+
+    <!-- FINAL SYSTEM BAR -->
+    <div class="arena-system-bar">
+
+        <div>
+            <span>SYSTEM</span>
+            <strong>HAND-TRACKING AR UI</strong>
+        </div>
+
+        <div>
+            <span>ENGINE</span>
+            <strong>PYTHON / OPENCV / MEDIAPIPE</strong>
+        </div>
+
+        <div>
+            <span>CREATOR</span>
+            <strong>RITU RAI</strong>
+        </div>
+
+        <div>
+            <span>STATUS</span>
+            <strong>ONLINE</strong>
+        </div>
+
+    </div>
+</section>
 
     </main>
 
@@ -529,50 +1232,87 @@
          FOOTER
     ========================================================== -->
 
-    <footer class="footer">
+   <footer class="site-footer">
+    <div class="footer-main">
 
-        <div class="footer-container">
-
-            <div>
-                <a href="#" class="logo">
-                    <span class="logo-bracket">&lt;</span>
-                    AR.UI
-                    <span class="logo-bracket">/&gt;</span>
-                </a>
-
-                <p>
-                    Hand-Tracking AR Interface
-                </p>
+        <div class="footer-brand">
+            <div class="footer-logo">
+                <span>AR</span><strong>.UI</strong>
             </div>
 
-            <div class="footer-credit">
-                <span>Designed & Developed by</span>
-                <strong>Ritu Rai</strong>
+            <p>
+                Hand-Tracking AR UI — an interactive computer-vision
+                experience controlled through real-time hand gestures.
+            </p>
+
+            <div class="footer-status">
+                <span class="status-dot"></span>
+                SYSTEM ONLINE
             </div>
-
-            <div class="footer-links">
-
-                <a
-                    href="https://github.com/RituRai-03"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    GitHub
-                </a>
-
-                <a href="#" target="_blank" rel="noopener noreferrer">
-                    LinkedIn
-                </a>
-
-            </div>
-
         </div>
 
-        <div class="copyright">
-            © 2026 Ritu Rai. All Rights Reserved.
+        <div class="footer-column">
+            <span class="footer-label">SYSTEM</span>
+
+            <a href="#about">ABOUT</a>
+            <a href="#gestures">ABILITIES</a>
+            <a href="#effects">ARSENAL</a>
+            <a href="#technology">TECH CORE</a>
+            <a href="#architecture">PIPELINE</a>
+            <a href="#demo">AR ARENA</a>
         </div>
 
-    </footer>
+        <div class="footer-column">
+            <span class="footer-label">TECH STACK</span>
+
+            <span>PYTHON</span>
+            <span>OPENCV</span>
+            <span>MEDIAPIPE</span>
+            <span>COMPUTER VISION</span>
+            <span>REALTIME AR</span>
+        </div>
+
+        <div class="footer-column footer-credit">
+            <span class="footer-label">CREATOR</span>
+
+            <strong>RITU RAI</strong>
+
+            <a
+                href="https://github.com/RituRai-03/Hand-Tracking-AR-UI"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                GITHUB ↗
+            </a>
+
+            <span>HAND-TRACKING AR UI</span>
+            <span>BUILD // REALTIME</span>
+        </div>
+
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <div class="footer-bottom">
+
+        <div class="footer-copyright">
+            © 2026 RITU RAI. ALL RIGHTS RESERVED.
+        </div>
+
+        <div class="footer-system">
+            <span>AR ENGINE</span>
+            <span class="footer-dot">◆</span>
+            <span>VISION CORE ACTIVE</span>
+            <span class="footer-dot">◆</span>
+            <span>READY</span>
+        </div>
+
+        <div class="footer-version">
+            AR.UI // v1.0
+        </div>
+
+    </div>
+</footer>
 
 
     <script src="script.js"></script>
