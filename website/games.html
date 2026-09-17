@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR.UI — World 03: Games (Cosmic Dodger)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="world-page">
+
+        <header class="world-header">
+            <a href="index.html" class="back-btn">
+                ← Back
+            </a>
+
+            <div class="world-title">
+                <span>WORLD 03</span>
+                <h1>Games: Cosmic Dodger</h1>
+            </div>
+
+            <div class="fps-badge" id="fps-counter">-- FPS</div>
+        </header>
+
+
+        <section class="world-stage">
+
+            <video id="camera" autoplay playsinline muted></video>
+            <canvas id="ar-canvas"></canvas>
+
+            <div class="camera-message" id="camera-message">
+                <h2>Camera Access Required</h2>
+                <p>Allow camera access to use your hand as the Game Controller.</p>
+                <button id="start-camera">Start Game</button>
+            </div>
+
+            <!-- Gesture Guide Overlay -->
+            <div class="gesture-guide-hud">
+                <div class="guide-header">
+                    <span>GAME CONTROLS</span>
+                </div>
+                <div class="guide-grid">
+                    <div class="guide-item">
+                        <span class="guide-icon">👆</span>
+                        <div class="guide-info">
+                            <strong>Hand Move</strong>
+                            <span>Steer Ship Avatar</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">🤏</span>
+                        <div class="guide-info">
+                            <strong>Pinch</strong>
+                            <span>Fire Blaster Lasers</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">✋</span>
+                        <div class="guide-info">
+                            <strong>Open Palm</strong>
+                            <span>Activate Shield Barrier</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">✊</span>
+                        <div class="guide-info">
+                            <strong>Fist</strong>
+                            <span>Trigger EMP Blast</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <div class="world-controls">
+            <span>GAME CONTROLLER</span>
+            <span id="tracking-status">WAITING FOR HAND CONTROLLER</span>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { CosmicDodgerGame } from "./worlds/gamesWorld.js";
+        document.addEventListener("DOMContentLoaded", () => {
+            const game = new CosmicDodgerGame();
+            game.start();
+        });
+    </script>
+
+</body>
+
+</html>

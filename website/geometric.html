@@ -2,15 +2,10 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>AR.UI — Geometric World</title>
-
+    <title>AR.UI — World 01: Geometric Shapes</title>
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
@@ -18,71 +13,112 @@
     <main class="world-page">
 
         <header class="world-header">
-
             <a href="index.html" class="back-btn">
                 ← Back
             </a>
 
             <div class="world-title">
-
                 <span>WORLD 01</span>
-
-                <h1>
-                    Geometric Shapes
-                </h1>
-
+                <h1>Geometric Shapes</h1>
             </div>
 
+            <div class="fps-badge" id="fps-counter">-- FPS</div>
         </header>
 
 
         <section class="world-stage">
 
-            <video
-                id="camera"
-                autoplay
-                playsinline
-                muted>
-            </video>
-
+            <video id="camera" autoplay playsinline muted></video>
             <canvas id="ar-canvas"></canvas>
 
-
             <div class="camera-message" id="camera-message">
+                <h2>Camera Access Required</h2>
+                <p>Allow camera access to enter the Geometric World.</p>
+                <button id="start-camera">Start Camera</button>
+            </div>
 
-                <h2>
-                    Camera Access Required
-                </h2>
-
-                <p>
-                    Allow camera access to enter the Geometric World.
-                </p>
-
-                <button id="start-camera">
-                    Start Camera
-                </button>
-
+            <!-- Gesture Guide Overlay -->
+            <div class="gesture-guide-hud">
+                <div class="guide-header">
+                    <span>GEOMETRIC GESTURES</span>
+                </div>
+                <div class="guide-grid">
+                    <div class="guide-item">
+                        <span class="guide-icon">🤏</span>
+                        <div class="guide-info">
+                            <strong>Pinch</strong>
+                            <span>3D Cube</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">✋</span>
+                        <div class="guide-info">
+                            <strong>Open Palm</strong>
+                            <span>Cyber Shield</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">✊</span>
+                        <div class="guide-info">
+                            <strong>Fist</strong>
+                            <span>Energy Core</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">👆</span>
+                        <div class="guide-info">
+                            <strong>Point</strong>
+                            <span>Pyramid & Laser</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">✌️</span>
+                        <div class="guide-info">
+                            <strong>Peace</strong>
+                            <span>Octahedron Star</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">🤘</span>
+                        <div class="guide-info">
+                            <strong>Rock</strong>
+                            <span>Electric Arcs</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">👍</span>
+                        <div class="guide-info">
+                            <strong>Thumbs Up/Down</strong>
+                            <span>Status Badge</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">👐</span>
+                        <div class="guide-info">
+                            <strong>Dual Hands</strong>
+                            <span>Cage / Beam</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </section>
 
 
         <div class="world-controls">
-
-            <span>
-                HAND TRACKING
-            </span>
-
-            <span id="tracking-status">
-                WAITING
-            </span>
-
+            <span>HAND TRACKING</span>
+            <span id="tracking-status">WAITING</span>
         </div>
 
     </main>
 
-
-    <script src="geometric.js"></script>
+    <script type="module">
+        import { GeometricWorld } from "./worlds/geometricWorld.js";
+        document.addEventListener("DOMContentLoaded", () => {
+            const world = new GeometricWorld();
+            world.start();
+        });
+    </script>
 
 </body>
 

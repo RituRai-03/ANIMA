@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR.UI — World 02: Superpowers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="world-page">
+
+        <header class="world-header">
+            <a href="index.html" class="back-btn">
+                ← Back
+            </a>
+
+            <div class="world-title">
+                <span>WORLD 02</span>
+                <h1>Superpowers</h1>
+            </div>
+
+            <div class="fps-badge" id="fps-counter">-- FPS</div>
+        </header>
+
+
+        <section class="world-stage">
+
+            <video id="camera" autoplay playsinline muted></video>
+            <canvas id="ar-canvas"></canvas>
+
+            <div class="camera-message" id="camera-message">
+                <h2>Camera Access Required</h2>
+                <p>Allow camera access to unleash Cinematic Superpowers.</p>
+                <button id="start-camera">Start Camera</button>
+            </div>
+
+            <!-- Gesture Guide Overlay -->
+            <div class="gesture-guide-hud">
+                <div class="guide-header">
+                    <span>SUPERPOWERS GESTURES</span>
+                </div>
+                <div class="guide-grid">
+                    <div class="guide-item">
+                        <span class="guide-icon">✊</span>
+                        <div class="guide-info">
+                            <strong>Hold Fist / Pinch</strong>
+                            <span>Charge & Fireball Launch</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">🤘</span>
+                        <div class="guide-info">
+                            <strong>Spider Pose</strong>
+                            <span>Web Shooter & Elastic Matrix</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">👐</span>
+                        <div class="guide-info">
+                            <strong>Dual Open Palms</strong>
+                            <span>Plasma Beam & Mystic Portal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <div class="world-controls">
+            <span>CINEMATIC TRACKING</span>
+            <span id="tracking-status">WAITING</span>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { SuperpowersWorld } from "./worlds/superpowersWorld.js";
+        document.addEventListener("DOMContentLoaded", () => {
+            const world = new SuperpowersWorld();
+            world.start();
+        });
+    </script>
+
+</body>
+
+</html>

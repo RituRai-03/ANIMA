@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR.UI — World 04: Music</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="world-page">
+
+        <header class="world-header">
+            <a href="index.html" class="back-btn">
+                ← Back
+            </a>
+
+            <div class="world-title">
+                <span>WORLD 04</span>
+                <h1>Music Playground</h1>
+            </div>
+
+            <div class="header-controls">
+                <button id="mute-btn" class="audio-btn">MUTE</button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" class="vol-range" title="Volume">
+                <div class="fps-badge" id="fps-counter">-- FPS</div>
+            </div>
+        </header>
+
+
+        <section class="world-stage">
+
+            <video id="camera" autoplay playsinline muted></video>
+            <canvas id="ar-canvas"></canvas>
+
+            <div class="camera-message" id="camera-message">
+                <h2>Camera Access Required</h2>
+                <p>Allow camera access to trigger notes and control frequency waves with your hands.</p>
+                <button id="start-camera">Start Synth</button>
+            </div>
+
+            <!-- Gesture Guide Overlay -->
+            <div class="gesture-guide-hud">
+                <div class="guide-header">
+                    <span>MUSIC CONTROLS</span>
+                </div>
+                <div class="guide-grid">
+                    <div class="guide-item">
+                        <span class="guide-icon">👆</span>
+                        <div class="guide-info">
+                            <strong>Index Position</strong>
+                            <span>Select Note (Columns 1-8)</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">🤏</span>
+                        <div class="guide-info">
+                            <strong>Pinch / Point</strong>
+                            <span>Trigger Lead Synth Note</span>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-icon">✋</span>
+                        <div class="guide-info">
+                            <strong>Open Palm</strong>
+                            <span>Trigger Ambient Pad Chord</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <div class="world-controls">
+            <span>SYNTH CONTROLLER</span>
+            <span id="tracking-status">WAITING</span>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { MusicWorld } from "./worlds/musicWorld.js";
+        document.addEventListener("DOMContentLoaded", () => {
+            const music = new MusicWorld();
+            music.start();
+        });
+    </script>
+
+</body>
+
+</html>
