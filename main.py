@@ -12,43 +12,13 @@ from mediapipe.tasks.python import vision
 from actions.portal_action import execute_portal
 from actions.beam_action import execute_beam
 from ui.hud import draw_hud
-from ui.hand_renderer import draw_hand_skeleton
 
 from actions.fireball_action import FireballAction
-from effects.fireball import draw_fireball, trigger_fireball_launch, trigger_fireball_impact
+from effects.fireball import draw_fireball, trigger_fireball_launch
 
 # Mystic Web
 from actions.web_action import WebAction
-from effects.mystic_web import draw_web, draw_web_projectile_and_impact, draw_web_muzzle_flash
-
-# Particles
-from effects.particles import (
-    emit_particles,
-    update_and_draw_particles,
-)
-
-# Geometric Effects
-from effects.geometric import (
-    draw_3d_cube,
-    draw_cyber_shield,
-    draw_energy_core,
-    draw_pyramid_and_laser,
-    draw_3d_star,
-    draw_electric_arcs,
-    draw_status_badge,
-)
-
-# Gestures
-from gestures.classifier import classify_hand_gesture
-from gestures.stabilizer import GestureStabilizer
-
-# Core Utilities
-from core.utils import (
-    calculate_distance,
-    calculate_2d_distance,
-    get_landmark_px,
-    get_palm_center_px,
-)
+from effects.mystic_web import draw_web
 
 
 # ---------------------------------------------------------------------------
@@ -100,7 +70,998 @@ COLOR_WHITE = (255, 255, 255)
 COLOR_DARK_BG = (20, 20, 20)
 
 
+# ---------------------------------------------------------------------------
+# Particle System
+# ---------------------------------------------------------------------------
 
+particles = []
+
+
+# ---------------------------------------------------------------------------
+# Utility Math Functions
+# ---------------------------------------------------------------------------
+
+def calculate_distance(p1, p2):
+    """Calculates Euclidean distance between two 3D landmarks."""
+    return math.sqrt(
+        (p1.x - p2.x) ** 2 +
+        (p1.y - p2.y) ** 2 +
+        (p1.z - p2.z) ** 2
+    )
+
+
+def calculate_2d_distance(pt1, pt2):
+    """Calculates 2D Euclidean distance between pixel points."""
+    return math.hypot(
+        pt1[0] - pt2[0],
+        pt1[1] - pt2[1]
+    )
+
+
+def get_landmark_px(lm, w, h):
+    """Converts normalized landmark to integer pixel tuple."""
+    return (
+        int(lm.x * w),
+        int(lm.y * h)
+    )
+
+
+def get_palm_center_px(landmarks, w, h):
+    """Computes approximate palm center pixel coordinate."""
+    wrist = landmarks[0]
+    idx_mcp = landmarks[5]
+    pinky_mcp = landmarks[17]
+
+    cx = int(
+        (wrist.x + idx_mcp.x + pinky_mcp.x)
+        / 3.0 * w
+    )
+
+    cy = int(
+        (wrist.y + idx_mcp.y + pinky_mcp.y)
+        / 3.0 * h
+    )
+
+    return (cx, cy)
+
+
+# ---------------------------------------------------------------------------
+# Gesture Classification Engine
+# ---------------------------------------------------------------------------
+
+def is_finger_extended(
+    landmarks,
+    tip_idx,
+    pip_idx,
+    mcp_idx,
+    wrist_idx=0
+):
+    """Determines whether a finger is extended relative to the wrist/MCP."""
+
+    tip = landmarks[tip_idx]
+    pip = landmarks[pip_idx]
+    mcp = landmarks[mcp_idx]
+    wrist = landmarks[wrist_idx]
+
+    dist_tip_wrist = calculate_distance(tip, wrist)
+    dist_pip_wrist = calculate_distance(pip, wrist)
+
+    dist_tip_mcp = calculate_distance(tip, mcp)
+    dist_pip_mcp = calculate_distance(pip, mcp)
+
+    return (
+        dist_tip_wrist > dist_pip_wrist
+        and dist_tip_mcp > dist_pip_mcp
+    )
+
+
+def is_thumb_extended(landmarks):
+    """Determines if the thumb is extended away from palm."""
+
+    thumb_tip = landmarks[4]
+    pinky_mcp = landmarks[17]
+    index_mcp = landmarks[5]
+    wrist = landmarks[0]
+
+    dist_to_pinky = calculate_distance(
+        thumb_tip,
+        pinky_mcp
+    )
+
+    dist_to_idx = calculate_distance(
+        thumb_tip,
+        index_mcp
+    )
+
+    dist_to_wrist = calculate_distance(
+        thumb_tip,
+        wrist
+    )
+
+    return (
+        dist_to_pinky > 0.23
+        or (
+            dist_to_idx > 0.14
+            and dist_to_wrist > 0.20
+        )
+    )
+
+
+def classify_hand_gesture(landmarks):
+    """
+    Classifies single-hand landmarks into gesture states:
+
+    PINCH
+    OPEN_PALM
+    FIST
+    POINT
+    PEACE
+    ROCK
+    THUMBS_UP
+    THUMBS_DOWN
+    IDLE
+    """
+
+    thumb_tip = landmarks[4]
+    index_tip = landmarks[8]
+
+    # ---------------------------------------------------------------
+    # Pinch distance check
+    # ---------------------------------------------------------------
+
+    pinch_dist = calculate_distance(
+        thumb_tip,
+        index_tip
+    )
+
+    if pinch_dist < 0.055:
+        return "PINCH", pinch_dist
+
+    # ---------------------------------------------------------------
+    # Finger states
+    # ---------------------------------------------------------------
+
+    index_ext = is_finger_extended(
+        landmarks, 8, 6, 5
+    )
+
+    middle_ext = is_finger_extended(
+        landmarks, 12, 10, 9
+    )
+
+    ring_ext = is_finger_extended(
+        landmarks, 16, 14, 13
+    )
+
+    pinky_ext = is_finger_extended(
+        landmarks, 20, 18, 17
+    )
+
+    thumb_ext = is_thumb_extended(landmarks)
+
+    ext_count = sum([
+        index_ext,
+        middle_ext,
+        ring_ext,
+        pinky_ext
+    ])
+
+    # ---------------------------------------------------------------
+    # Open Palm
+    # ---------------------------------------------------------------
+
+    if ext_count >= 4 and thumb_ext:
+        return "OPEN_PALM", pinch_dist
+
+    if ext_count == 4:
+        return "OPEN_PALM", pinch_dist
+
+    # ---------------------------------------------------------------
+    # Fist
+    # ---------------------------------------------------------------
+
+    if ext_count == 0 and not thumb_ext:
+        return "FIST", pinch_dist
+
+    # ---------------------------------------------------------------
+    # Point
+    # ---------------------------------------------------------------
+
+    if (
+        index_ext
+        and not middle_ext
+        and not ring_ext
+        and not pinky_ext
+    ):
+        return "POINT", pinch_dist
+
+    # ---------------------------------------------------------------
+    # Peace / Victory
+    # ---------------------------------------------------------------
+
+    if (
+        index_ext
+        and middle_ext
+        and not ring_ext
+        and not pinky_ext
+    ):
+        return "PEACE", pinch_dist
+
+    # ---------------------------------------------------------------
+    # Rock / Metal
+    # ---------------------------------------------------------------
+
+    if (
+        index_ext
+        and pinky_ext
+        and not middle_ext
+        and not ring_ext
+    ):
+        return "ROCK", pinch_dist
+
+    # ---------------------------------------------------------------
+    # Thumbs Up / Down
+    # ---------------------------------------------------------------
+
+    if ext_count == 0 and thumb_ext:
+
+        thumb_mcp = landmarks[2]
+
+        if thumb_tip.y < thumb_mcp.y - 0.04:
+            return "THUMBS_UP", pinch_dist
+
+        elif thumb_tip.y > thumb_mcp.y + 0.04:
+            return "THUMBS_DOWN", pinch_dist
+
+    return "IDLE", pinch_dist
+
+
+# ---------------------------------------------------------------------------
+# Hand Skeleton Renderer
+# ---------------------------------------------------------------------------
+
+def draw_hand_skeleton(
+    frame,
+    landmarks,
+    primary_color,
+    secondary_color
+):
+    """Draws hand skeleton connections and keypoints."""
+
+    h, w, _ = frame.shape
+
+    pts = [
+        get_landmark_px(lm, w, h)
+        for lm in landmarks
+    ]
+
+    # Bone connections
+    for p1_idx, p2_idx in HAND_CONNECTIONS:
+        cv2.line(
+            frame,
+            pts[p1_idx],
+            pts[p2_idx],
+            primary_color,
+            2,
+            cv2.LINE_AA
+        )
+
+    # Joint dots
+    for i, pt in enumerate(pts):
+
+        # Fingertips
+        if i in [4, 8, 12, 16, 20]:
+
+            cv2.circle(
+                frame,
+                pt,
+                6,
+                secondary_color,
+                -1,
+                cv2.LINE_AA
+            )
+
+            cv2.circle(
+                frame,
+                pt,
+                9,
+                primary_color,
+                1,
+                cv2.LINE_AA
+            )
+
+        else:
+
+            cv2.circle(
+                frame,
+                pt,
+                3,
+                (40, 40, 40),
+                -1,
+                cv2.LINE_AA
+            )
+
+            cv2.circle(
+                frame,
+                pt,
+                3,
+                primary_color,
+                1,
+                cv2.LINE_AA
+            )
+
+
+# ---------------------------------------------------------------------------
+# Particle System
+# ---------------------------------------------------------------------------
+
+def update_and_draw_particles(frame):
+    """Updates fingertip trailing particle system."""
+
+    global particles
+
+    new_particles = []
+
+    for p in particles:
+
+        x, y, vx, vy, life, color = p
+
+        x += vx
+        y += vy
+        life -= 0.05
+
+        if life > 0:
+
+            radius = max(
+                1,
+                int(life * 5)
+            )
+
+            cv2.circle(
+                frame,
+                (int(x), int(y)),
+                radius,
+                color,
+                -1,
+                cv2.LINE_AA
+            )
+
+            new_particles.append([
+                x,
+                y,
+                vx,
+                vy,
+                life,
+                color
+            ])
+
+    particles = new_particles
+
+
+def emit_particles(
+    px,
+    py,
+    color,
+    count=3
+):
+    """Emits floating particle burst."""
+
+    global particles
+
+    for _ in range(count):
+
+        vx = random.uniform(
+            -2.0,
+            2.0
+        )
+
+        vy = random.uniform(
+            -2.0,
+            2.0
+        )
+
+        life = random.uniform(
+            0.5,
+            1.0
+        )
+
+        particles.append([
+            px,
+            py,
+            vx,
+            vy,
+            life,
+            color
+        ])
+
+
+# ---------------------------------------------------------------------------
+# 3D Shape & Hologram Renderers
+# ---------------------------------------------------------------------------
+
+def draw_3d_cube(
+    img,
+    cx,
+    cy,
+    scale,
+    angle,
+    color
+):
+    """Renders rotating 3D wireframe cube."""
+
+    rad = math.radians(angle)
+
+    cos_a = math.cos(rad)
+    sin_a = math.sin(rad)
+
+    cos_b = math.cos(rad * 0.7)
+    sin_b = math.sin(rad * 0.7)
+
+    s = scale
+
+    base_vertices = [
+        [-s, -s, -s],
+        [s, -s, -s],
+        [s, s, -s],
+        [-s, s, -s],
+        [-s, -s, s],
+        [s, -s, s],
+        [s, s, s],
+        [-s, s, s]
+    ]
+
+    screen_pts = []
+
+    for x, y, z in base_vertices:
+
+        xz_x = (
+            x * cos_a
+            + z * sin_a
+        )
+
+        xz_z = (
+            -x * sin_a
+            + z * cos_a
+        )
+
+        yz_y = (
+            y * cos_b
+            - xz_z * sin_b
+        )
+
+        px = int(cx + xz_x)
+        py = int(cy + yz_y)
+
+        screen_pts.append(
+            (px, py)
+        )
+
+    edges = [
+        (0, 1),
+        (1, 2),
+        (2, 3),
+        (3, 0),
+        (4, 5),
+        (5, 6),
+        (6, 7),
+        (7, 4),
+        (0, 4),
+        (1, 5),
+        (2, 6),
+        (3, 7)
+    ]
+
+    for pt1, pt2 in edges:
+
+        cv2.line(
+            img,
+            screen_pts[pt1],
+            screen_pts[pt2],
+            COLOR_WHITE,
+            3,
+            cv2.LINE_AA
+        )
+
+        cv2.line(
+            img,
+            screen_pts[pt1],
+            screen_pts[pt2],
+            color,
+            1,
+            cv2.LINE_AA
+        )
+
+    for pt in screen_pts:
+
+        cv2.circle(
+            img,
+            pt,
+            3,
+            COLOR_WHITE,
+            -1,
+            cv2.LINE_AA
+        )
+
+
+def draw_cyber_shield(
+    img,
+    cx,
+    cy,
+    radius,
+    angle,
+    color
+):
+    """Renders futuristic rotating Cyber HUD Shield."""
+
+    cv2.circle(
+        img,
+        (cx, cy),
+        radius,
+        color,
+        2,
+        cv2.LINE_AA
+    )
+
+    cv2.circle(
+        img,
+        (cx, cy),
+        radius + 8,
+        COLOR_WHITE,
+        1,
+        cv2.LINE_AA
+    )
+
+    cv2.circle(
+        img,
+        (cx, cy),
+        int(radius * 0.6),
+        color,
+        1,
+        cv2.LINE_AA
+    )
+
+    num_ticks = 12
+
+    for i in range(num_ticks):
+
+        a = math.radians(
+            angle + i * (360 / num_ticks)
+        )
+
+        x1 = int(
+            cx + (radius - 5) * math.cos(a)
+        )
+
+        y1 = int(
+            cy + (radius - 5) * math.sin(a)
+        )
+
+        x2 = int(
+            cx + (radius + 12) * math.cos(a)
+        )
+
+        y2 = int(
+            cy + (radius + 12) * math.sin(a)
+        )
+
+        cv2.line(
+            img,
+            (x1, y1),
+            (x2, y2),
+            COLOR_WHITE if i % 3 == 0 else color,
+            2,
+            cv2.LINE_AA
+        )
+
+    l = 15
+
+    cv2.line(
+        img,
+        (cx - l, cy),
+        (cx + l, cy),
+        color,
+        1,
+        cv2.LINE_AA
+    )
+
+    cv2.line(
+        img,
+        (cx, cy - l),
+        (cx, cy + l),
+        color,
+        1,
+        cv2.LINE_AA
+    )
+
+
+def draw_energy_core(
+    img,
+    cx,
+    cy,
+    scale,
+    angle,
+    color
+):
+    """Renders pulsing 3D energy core."""
+
+    rad = math.radians(angle)
+
+    for ring_idx in range(3):
+
+        r_angle = (
+            rad
+            + ring_idx * (math.pi / 3)
+        )
+
+        axes = (
+            scale,
+            max(
+                5,
+                int(
+                    scale
+                    * abs(math.sin(r_angle))
+                )
+            )
+        )
+
+        cv2.ellipse(
+            img,
+            (cx, cy),
+            axes,
+            int(math.degrees(r_angle)),
+            0,
+            360,
+            color,
+            2,
+            cv2.LINE_AA
+        )
+
+    cv2.circle(
+        img,
+        (cx, cy),
+        int(scale * 0.4),
+        COLOR_WHITE,
+        -1,
+        cv2.LINE_AA
+    )
+
+    cv2.circle(
+        img,
+        (cx, cy),
+        int(scale * 0.5),
+        color,
+        2,
+        cv2.LINE_AA
+    )
+
+    emit_particles(
+        cx,
+        cy,
+        color,
+        count=2
+    )
+
+
+def draw_pyramid_and_laser(
+    img,
+    tip_px,
+    vector_dir,
+    angle,
+    color
+):
+    """Renders rotating 3D pyramid + laser."""
+
+    cx, cy = tip_px
+
+    rad = math.radians(angle)
+
+    cos_a = math.cos(rad)
+    sin_a = math.sin(rad)
+
+    s = 35
+
+    base_vertices = [
+        [-s, s, -s],
+        [s, s, -s],
+        [s, s, s],
+        [-s, s, s],
+        [0, -s, 0]
+    ]
+
+    screen_pts = []
+
+    for x, y, z in base_vertices:
+
+        rx = (
+            x * cos_a
+            + z * sin_a
+        )
+
+        ry = y
+
+        screen_pts.append(
+            (
+                int(cx + rx),
+                int(cy + ry)
+            )
+        )
+
+    edges = [
+        (0, 1),
+        (1, 2),
+        (2, 3),
+        (3, 0),
+        (0, 4),
+        (1, 4),
+        (2, 4),
+        (3, 4)
+    ]
+
+    for pt1, pt2 in edges:
+
+        cv2.line(
+            img,
+            screen_pts[pt1],
+            screen_pts[pt2],
+            color,
+            2,
+            cv2.LINE_AA
+        )
+
+    apex_x, apex_y = screen_pts[4]
+
+    laser_end = (
+        apex_x,
+        apex_y - 120
+    )
+
+    cv2.line(
+        img,
+        (apex_x, apex_y),
+        laser_end,
+        COLOR_WHITE,
+        4,
+        cv2.LINE_AA
+    )
+
+    cv2.line(
+        img,
+        (apex_x, apex_y),
+        laser_end,
+        color,
+        2,
+        cv2.LINE_AA
+    )
+
+    cv2.circle(
+        img,
+        laser_end,
+        5,
+        COLOR_WHITE,
+        -1,
+        cv2.LINE_AA
+    )
+
+
+def draw_3d_star(
+    img,
+    cx,
+    cy,
+    scale,
+    angle,
+    color
+):
+    """Renders rotating 3D octahedron star."""
+
+    rad = math.radians(angle)
+
+    cos_a = math.cos(rad)
+    sin_a = math.sin(rad)
+
+    s = scale
+
+    verts = [
+        [0, -s, 0],
+        [0, s, 0],
+        [-s, 0, 0],
+        [s, 0, 0],
+        [0, 0, -s],
+        [0, 0, s]
+    ]
+
+    screen_pts = []
+
+    for x, y, z in verts:
+
+        rx = (
+            x * cos_a
+            + z * sin_a
+        )
+
+        ry = y
+
+        screen_pts.append(
+            (
+                int(cx + rx),
+                int(cy + ry)
+            )
+        )
+
+    edges = [
+        (0, 2),
+        (0, 3),
+        (0, 4),
+        (0, 5),
+        (1, 2),
+        (1, 3),
+        (1, 4),
+        (1, 5),
+        (2, 4),
+        (4, 3),
+        (3, 5),
+        (5, 2)
+    ]
+
+    for pt1, pt2 in edges:
+
+        cv2.line(
+            img,
+            screen_pts[pt1],
+            screen_pts[pt2],
+            color,
+            2,
+            cv2.LINE_AA
+        )
+
+    for pt in screen_pts:
+
+        cv2.circle(
+            img,
+            pt,
+            3,
+            COLOR_WHITE,
+            -1,
+            cv2.LINE_AA
+        )
+
+
+def draw_electric_arcs(
+    img,
+    pt1,
+    pt2,
+    color
+):
+    """Renders dynamic plasma lightning."""
+
+    dist = calculate_2d_distance(
+        pt1,
+        pt2
+    )
+
+    steps = max(
+        5,
+        int(dist / 15)
+    )
+
+    pts = [pt1]
+
+    for i in range(1, steps):
+
+        t = i / steps
+
+        lx = int(
+            pt1[0] * (1 - t)
+            + pt2[0] * t
+            + random.randint(-12, 12)
+        )
+
+        ly = int(
+            pt1[1] * (1 - t)
+            + pt2[1] * t
+            + random.randint(-12, 12)
+        )
+
+        pts.append(
+            (lx, ly)
+        )
+
+    pts.append(pt2)
+
+    for i in range(len(pts) - 1):
+
+        cv2.line(
+            img,
+            pts[i],
+            pts[i + 1],
+            COLOR_WHITE,
+            3,
+            cv2.LINE_AA
+        )
+
+        cv2.line(
+            img,
+            pts[i],
+            pts[i + 1],
+            color,
+            1,
+            cv2.LINE_AA
+        )
+
+
+def draw_status_badge(
+    img,
+    cx,
+    cy,
+    is_up,
+    color
+):
+    """Renders holographic status badge."""
+
+    w_box = 140
+    h_box = 50
+
+    x1 = cx - w_box // 2
+    y1 = cy - h_box // 2
+
+    x2 = cx + w_box // 2
+    y2 = cy + h_box // 2
+
+    overlay = img.copy()
+
+    cv2.rectangle(
+        overlay,
+        (x1, y1),
+        (x2, y2),
+        (10, 10, 10),
+        -1
+    )
+
+    cv2.addWeighted(
+        overlay,
+        0.6,
+        img,
+        0.4,
+        0,
+        img
+    )
+
+    cv2.rectangle(
+        img,
+        (x1, y1),
+        (x2, y2),
+        color,
+        2,
+        cv2.LINE_AA
+    )
+
+    label = (
+        "LIKE [APPROVED]"
+        if is_up
+        else
+        "DISLIKE [REJECTED]"
+    )
+
+    arrow = "^" if is_up else "v"
+
+    cv2.putText(
+        img,
+        label,
+        (x1 + 10, cy + 5),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.45,
+        color,
+        2
+    )
+
+    cv2.putText(
+        img,
+        arrow,
+        (x2 - 20, cy + 6),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.7,
+        COLOR_WHITE,
+        2
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -334,9 +1295,9 @@ def main():
     options = vision.HandLandmarkerOptions(
         base_options=base_options,
         num_hands=2,
-        min_hand_detection_confidence=0.75,
-        min_hand_presence_confidence=0.70,
-        min_tracking_confidence=0.70
+        min_hand_detection_confidence=0.65,
+        min_hand_presence_confidence=0.65,
+        min_tracking_confidence=0.65
     )
 
     detector = vision.HandLandmarker.create_from_options(
@@ -383,15 +1344,6 @@ def main():
     web_actions = [
         WebAction(),
         WebAction()
-    ]
-
-    active_web_projectiles = []
-
-    # Gesture stability system
-
-    gesture_stabilizers = [
-        GestureStabilizer(required_frames=3),
-        GestureStabilizer(required_frames=3)
     ]
 
     # ---------------------------------------------------------------
@@ -514,51 +1466,19 @@ def main():
         # MediaPipe Detection
         # ---------------------------------------------------------------
 
-        profile_start = time.perf_counter()
-
-        profile_mp_start = time.perf_counter()
-
-        profile_hand_effects = 0.0
-        profile_projectiles = 0.0
-        profile_particles = 0.0 
-
-        # rgb_frame = cv2.cvtColor(
-        #     frame,
-        #     cv2.COLOR_BGR2RGB
-        # )
-
-        # mp_image = mp.Image(
-        #     image_format=mp.ImageFormat.SRGB,
-        #     data=rgb_frame
-        # )
-
-        # results = detector.detect(
-        #     mp_image
-        # )
-
-        # Keep display frame at 960x540.
-        # Use a smaller temporary frame only for MediaPipe detection.
-        detection_frame = cv2.resize(
+        rgb_frame = cv2.cvtColor(
             frame,
-            (720, 405),
-            interpolation=cv2.INTER_AREA
-        )
-
-        rgb = cv2.cvtColor(
-            detection_frame,
             cv2.COLOR_BGR2RGB
-         )
+        )
 
         mp_image = mp.Image(
             image_format=mp.ImageFormat.SRGB,
-            data=rgb
+            data=rgb_frame
         )
 
-        results = detector.detect(mp_image)
-            
-
-        profile_detection = time.perf_counter() - profile_start
-        profile_mp = time.perf_counter() - profile_mp_start
+        results = detector.detect(
+            mp_image
+        )
 
         # ---------------------------------------------------------------
         # Animation Rotation
@@ -645,10 +1565,6 @@ def main():
                     classify_hand_gesture(
                         landmarks
                     )
-                )
-
-                stable_gesture = gesture_stabilizers[i].update(
-                    gesture
                 )
 
                 # -------------------------------------------------------
@@ -886,20 +1802,6 @@ def main():
                     web_state["active"]
                 )
 
-                if web_state.get("web_requested", False):
-                    web_target_pt = (
-                        (index_tip_px[0] + pinky_tip_px[0]) // 2,
-                        (index_tip_px[1] + pinky_tip_px[1]) // 2
-                    )
-                    active_web_projectiles.append({
-                        "pos": [float(palm_px[0]), float(palm_px[1])],
-                        "origin": [float(palm_px[0]), float(palm_px[1])],
-                        "target": [float(web_target_pt[0]), float(web_target_pt[1])],
-                        "life": 10,
-                        "max_life": 10,
-                        "phase": "shooting"
-                    })
-
                 # -------------------------------------------------------
                 # Hand Data
                 # -------------------------------------------------------
@@ -908,11 +1810,7 @@ def main():
                     "index": i,
                     "label": label,
                     "score": score,
-                    "gesture": (
-                        "FIREBALL" if fireball_active
-                        else "WEB" if web_active
-                        else stable_gesture
-                    ),
+                    "gesture": gesture,
                     "landmarks": landmarks,
 
                     "palm_px": palm_px,
@@ -933,11 +1831,9 @@ def main():
                     "web_hold_time": web_state.get("hold_time", 0.0)
                 }
 
-                # hand_data_list.append(
-                #     hand_data
-                # )
-
-                profile_effect_start = time.perf_counter()
+                hand_data_list.append(
+                    hand_data
+                )
 
             # ===========================================================
             # DUAL-HAND INTERACTIVITY
@@ -1078,8 +1974,6 @@ def main():
                         h2["palm_px"],
                         rotation_angle
                     )
-
-                    profile_effect_start = time.perf_counter()
 
             # ===========================================================
             # SINGLE-HAND AR RENDERINGS
@@ -1297,11 +2191,6 @@ def main():
                         b_color
                     )
 
-
-                    
-
-        profile_projectile_start = time.perf_counter()          
-
         # =================================================================
         # FIREBALL PROJECTILES
         # =================================================================
@@ -1359,53 +2248,12 @@ def main():
                 )
 
         # =================================================================
-        # SPIDER-MAN WEB PROJECTILES
-        # =================================================================
-
-        for proj in active_web_projectiles[:]:
-            if proj["phase"] == "shooting":
-                tx, ty = proj["target"]
-                px, py = proj["pos"]
-                dx = tx - px
-                dy = ty - py
-                dist = math.hypot(dx, dy)
-                if dist > 15:
-                    proj["pos"][0] += (dx / dist) * 40.0
-                    proj["pos"][1] += (dy / dist) * 40.0
-                    proj["life"] -= 1
-                else:
-                    proj["phase"] = "impact"
-                    proj["life"] = 8
-                    proj["max_life"] = 8
-                    screen_shake_frames = 4
-
-            elif proj["phase"] == "impact":
-                proj["life"] -= 1
-
-            draw_web_projectile_and_impact(frame, proj)
-
-            if proj["life"] <= 0:
-                active_web_projectiles.remove(proj)
-
-
-            profile_projectiles = time.perf_counter() - profile_projectile_start()
-
-                
-
-        # =================================================================
         # Particle Animation
         # =================================================================
-       
-        profile_particle_start = time.perf_counter()
 
         update_and_draw_particles(
-               frame
+            frame
         )
-
-        profile_particles = time.perf_counter() - profile_particle_start
-
-        profile_render = time.perf_counter() - profile_start
-        
 
         # =================================================================
         # HUD
@@ -1441,30 +2289,6 @@ def main():
             hud_hand_info,
             dual_mode_str
         )
-
-        cv2.putText(
-            frame,
-            f"MP {profile_mp * 1000:.0f}ms FX {profile_hand_effects * 1000:.0f}ms "
-            f"PROJ {profile_projectiles * 1000:.0f}ms PRT {profile_particles * 1000:.0f}ms",
-            (330, 25),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.45,
-            COLOR_WHITE,
-            1,
-            cv2.LINE_AA
-        )
-
-        # =================================================================
-        # Post-Processing Subtle Screen Shake
-        # =================================================================
-
-        if 'screen_shake_frames' in locals() and screen_shake_frames > 0:
-            h_f, w_f = frame.shape[:2]
-            dx_s = random.randint(-3, 3)
-            dy_s = random.randint(-3, 3)
-            M_s = np.float32([[1, 0, dx_s], [0, 1, dy_s]])
-            frame = cv2.warpAffine(frame, M_s, (w_f, h_f))
-            screen_shake_frames -= 1
 
         # =================================================================
         # Display
