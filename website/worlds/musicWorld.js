@@ -36,6 +36,8 @@ export class MusicWorld {
         this.lastTriggerTime = 0;
         this.trackingLostTimer = 0;
         this.isRunning = false;
+        this.isInitializing = false;
+        this.animationFrame = null;
     }
 
     async start() {
@@ -61,16 +63,31 @@ export class MusicWorld {
     }
 
     async init() {
-        const camOk = await this.cameraManager.start();
-        if (!camOk) return;
+        if (this.isRunning || this.isInitializing) return;
+        this.isInitializing = true;
 
-        const trackOk = await this.tracker.init((statusText) => {
-            this.cameraManager.updateStatus(statusText);
-        });
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
+        }
 
-        if (trackOk) {
-            this.isRunning = true;
-            this.loop();
+        try {
+            const camOk = await this.cameraManager.start();
+            if (!camOk) return;
+
+            const trackOk = await this.tracker.init((statusText) => {
+                this.cameraManager.updateStatus(statusText);
+            });
+
+            if (trackOk) {
+                this.isRunning = true;
+                this.loop();
+            }
+        } catch (error) {
+            console.error("MusicWorld Initialization Error:", error);
+            this.cameraManager.updateStatus(CAMERA_STATES.ERROR);
+        } finally {
+            this.isInitializing = false;
         }
     }
 
@@ -187,6 +204,24 @@ export class MusicWorld {
 
         this.drawAudioVisualizer(ctx, w, h, activeFreq);
         this.particleSystem.updateAndDraw(ctx, 0.016, this.perfMonitor.maxParticles);
-        requestAnimationFrame(() => this.loop());
+        if (this.isRunning) {
+            this.animationFrame = requestAnimationFrame(() => this.loop());
+        }
+    }
+
+    stop() {
+        this.isRunning = false;
+        this.isInitializing = false;
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
+        }
+        if (this.cameraManager) {
+            this.cameraManager.stop();
+        }
+        if (this.particleSystem) {
+            this.particleSystem.clear();
+        }
+        this.stabilizers.forEach(s => s.reset());
     }
 }

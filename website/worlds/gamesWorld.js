@@ -3,6 +3,11 @@
 // Cosmic Dodger — Gesture Controlled Game
 // ============================================================
 
+import { CanvasManager } from "../core/canvas.js";
+import { classifyHandGesture, getPalmCenterPx } from "../tracking/gestureDetector.js";
+import { GestureStabilizer } from "../tracking/gestureStabilizer.js";
+import { globalAudio } from "../core/audio.js";
+
 export class CosmicDodgerGame {
 
     constructor() {
@@ -32,6 +37,28 @@ export class CosmicDodgerGame {
         this.fpsCounter =
             document.getElementById("fps-counter");
 
+        this.scoreElement =
+            document.getElementById("game-score");
+
+        this.levelElement =
+            document.getElementById("game-level");
+
+        this.shieldElement =
+            document.getElementById("game-shield");
+
+
+        // --------------------------------------------------------
+        // Core Managers & Stabilizers
+        // --------------------------------------------------------
+
+        this.canvasManager =
+            new CanvasManager(this.canvas, this.camera);
+
+        this.stabilizer =
+            new GestureStabilizer(5);
+
+        this.isInitializing = false;
+
 
         // --------------------------------------------------------
         // MediaPipe
@@ -58,6 +85,7 @@ export class CosmicDodgerGame {
 
         // --------------------------------------------------------
         // Game State
+
         // --------------------------------------------------------
 
         this.running = false;
@@ -204,8 +232,14 @@ export class CosmicDodgerGame {
 
     async startCamera() {
 
-        if (this.running) {
+        if (this.running || this.isInitializing) {
             return;
+        }
+        this.isInitializing = true;
+
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
         }
 
         try {
@@ -259,8 +293,10 @@ export class CosmicDodgerGame {
                 "none";
 
 
-            this.cameraMessage.style.display =
-                "none";
+            if (this.cameraMessage) {
+                this.cameraMessage.style.display =
+                    "none";
+            }
 
 
             this.setStatus(
@@ -316,6 +352,8 @@ export class CosmicDodgerGame {
 
             this.showCameraError();
 
+        } finally {
+            this.isInitializing = false;
         }
 
     }
@@ -365,6 +403,11 @@ export class CosmicDodgerGame {
     // ============================================================
 
     async initializeHandTracking() {
+
+        if (this.handLandmarker) {
+            this.setStatus("HAND CONTROLLER READY");
+            return;
+        }
 
         try {
 
@@ -470,7 +513,7 @@ export class CosmicDodgerGame {
             Math.min(
                 (timestamp - this.lastFrameTime) / 1000,
                 0.05
-            );
+            ) || 0.016;
 
 
         this.lastFrameTime =
@@ -486,7 +529,7 @@ export class CosmicDodgerGame {
         // Detect hands
         // --------------------------------------------------------
 
-        this.detectHands();
+        this.detectHands(delta);
 
 
         // --------------------------------------------------------
@@ -508,10 +551,12 @@ export class CosmicDodgerGame {
         );
 
 
-        this.animationFrame =
-            requestAnimationFrame(
-                this.loop
-            );
+        if (this.running) {
+            this.animationFrame =
+                requestAnimationFrame(
+                    this.loop
+                );
+        }
 
     }
 
@@ -520,7 +565,7 @@ export class CosmicDodgerGame {
     // HAND DETECTION
     // ============================================================
 
-    detectHands() {
+    detectHands(delta = 0.016) {
 
         if (
             !this.handLandmarker ||
@@ -585,6 +630,10 @@ export class CosmicDodgerGame {
             this.shieldActive =
                 false;
 
+            if (this.stabilizer) {
+                this.stabilizer.reset();
+            }
+
             this.setStatus(
                 "NO HAND CONTROLLER"
             );
@@ -607,48 +656,44 @@ export class CosmicDodgerGame {
         // --------------------------------------------------------
 
         const palm =
-            this.getPalmCenter(
-                landmarks
+            getPalmCenterPx(
+                landmarks,
+                1,
+                1
             );
 
-
-        /*
-         * MediaPipe coordinates are not mirrored.
-         *
-         * Camera is visually mirrored using CSS.
-         *
-         * Therefore we mirror the X coordinate manually
-         * for the game controller.
-         */
 
         const mirroredX =
             1 - palm.x;
 
 
-        this.handX =
-            this.smoothValue(
-                this.handX,
-                mirroredX,
-                0.25
-            );
+        // Exponential smoothing with delta time
+        const handLerp = 1 - Math.exp(-22 * delta);
 
+        this.handX += (mirroredX - this.handX) * handLerp;
 
-        this.handY =
-            this.smoothValue(
-                this.handY,
-                palm.y,
-                0.25
-            );
+        this.handY += (palm.y - this.handY) * handLerp;
 
 
         // --------------------------------------------------------
-        // Gesture
+        // Gesture classification & temporal stabilization
         // --------------------------------------------------------
 
-        const gesture =
-            this.classifyGesture(
-                landmarks
-            );
+        const rawData =
+            classifyHandGesture(landmarks);
+
+        let rawG = rawData.gesture;
+        if (rawG === "OPEN_PALM") {
+            rawG = "OPEN PALM";
+        }
+
+
+        const stabResult =
+            this.stabilizer
+                ? this.stabilizer.update(rawG, delta)
+                : { gesture: rawG };
+
+        const gesture = stabResult.gesture;
 
 
         this.previousGesture =
@@ -1000,33 +1045,23 @@ export class CosmicDodgerGame {
 
 
         // --------------------------------------------------------
-        // Smooth ship movement
+        // Smooth ship movement (exponential decay lerp)
         // --------------------------------------------------------
+
+        const shipLerp = 1 - Math.exp(-15 * delta);
 
         this.ship.x +=
             (
                 this.ship.targetX -
                 this.ship.x
-            ) *
-            Math.min(
-                1,
-                this.ship.speed *
-                60 *
-                delta
-            );
+            ) * shipLerp;
 
 
         this.ship.y +=
             (
                 this.ship.targetY -
                 this.ship.y
-            ) *
-            Math.min(
-                1,
-                this.ship.speed *
-                60 *
-                delta
-            );
+            ) * shipLerp;
 
 
         // --------------------------------------------------------
@@ -1086,7 +1121,7 @@ export class CosmicDodgerGame {
 
 
         // --------------------------------------------------------
-        // Level
+        // Level & HUD
         // --------------------------------------------------------
 
         this.level =
@@ -1094,6 +1129,16 @@ export class CosmicDodgerGame {
             Math.floor(
                 this.score / 1000
             );
+
+        if (this.scoreElement) {
+            this.scoreElement.textContent = String(this.score).padStart(6, "0");
+        }
+        if (this.levelElement) {
+            this.levelElement.textContent = String(this.level).padStart(2, "0");
+        }
+        if (this.shieldElement) {
+            this.shieldElement.textContent = this.shieldActive ? "ACTIVE" : "READY";
+        }
 
     }
 
@@ -1582,6 +1627,11 @@ export class CosmicDodgerGame {
 
     updateParticles(delta) {
 
+        const maxParticles = 120;
+        if (this.particles.length > maxParticles) {
+            this.particles.splice(0, this.particles.length - maxParticles);
+        }
+
         for (
             let i =
                 this.particles.length - 1;
@@ -1643,6 +1693,13 @@ export class CosmicDodgerGame {
 
     render(timestamp) {
 
+        // Use CanvasManager to reset context state & clear canvas
+        if (this.canvasManager) {
+            this.canvasManager.clear();
+        } else {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+
         const ctx =
             this.ctx;
 
@@ -1653,20 +1710,6 @@ export class CosmicDodgerGame {
 
         const height =
             this.canvas.height;
-
-
-        // --------------------------------------------------------
-        // IMPORTANT:
-        // Clear the ENTIRE canvas every frame.
-        // This prevents old graphics/artifacts.
-        // --------------------------------------------------------
-
-        ctx.clearRect(
-            0,
-            0,
-            width,
-            height
-        );
 
 
         // --------------------------------------------------------
@@ -1803,6 +1846,8 @@ export class CosmicDodgerGame {
         timestamp
     ) {
 
+        ctx.save();
+
         const gradient =
             ctx.createLinearGradient(
                 0,
@@ -1814,13 +1859,13 @@ export class CosmicDodgerGame {
 
         gradient.addColorStop(
             0,
-            "rgba(5, 12, 25, 0.15)"
+            "rgb(5, 12, 25)"
         );
 
 
         gradient.addColorStop(
             1,
-            "rgba(5, 12, 25, 0.32)"
+            "rgb(12, 22, 40)"
         );
 
 
@@ -1834,6 +1879,8 @@ export class CosmicDodgerGame {
             width,
             height
         );
+
+        ctx.restore();
 
     }
 
@@ -2344,6 +2391,8 @@ export class CosmicDodgerGame {
 
     drawParticles(ctx) {
 
+        ctx.save();
+
         this.particles.forEach(
             (particle) => {
 
@@ -2414,6 +2463,8 @@ export class CosmicDodgerGame {
 
             }
         );
+
+        ctx.restore();
 
     }
 
@@ -3028,6 +3079,9 @@ export class CosmicDodgerGame {
         this.running =
             false;
 
+        this.isInitializing =
+            false;
+
 
         if (
             this.animationFrame
@@ -3072,6 +3126,11 @@ export class CosmicDodgerGame {
                 null;
 
         }
+
+        window.removeEventListener(
+            "resize",
+            this.handleResize
+        );
 
     }
 
