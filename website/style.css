@@ -279,7 +279,7 @@ html, body {
     box-shadow: 0 25px 40px -10px rgba(139, 92, 246, 0.35);
 }
 
-.hero-pill-info {
+/* .hero-pill-info {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -290,7 +290,7 @@ html, body {
     color: var(--text-secondary);
     font-size: 14px;
     font-weight: 600;
-}
+} */
 
 /* Procedural Decorative Floating Elements in Hero */
 .hero-deco {
@@ -473,7 +473,7 @@ html, body {
 }
 
 .mode-btn:hover {
-    background: linear-gradient(135deg, var(--accent-purple), var(--accent-rose));
+    background: linear-gradient(135deg,pink,rgb(216, 126, 216));
     color: #ffffff;
     border-color: transparent;
     box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
@@ -956,3 +956,109 @@ footer {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ------------------------------------------------------------
+   WORLD ENTRY TRANSITION
+   ------------------------------------------------------------ */
+
+body {
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease,
+        filter 0.5s ease;
+}
+
+body.world-transitioning {
+    opacity: 0;
+    transform: scale(1.035);
+    filter: blur(5px);
+}
+
+.world-enter-active {
+    transform: scale(0.94);
+    transition: transform 0.18s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body,
+    .world-enter-active {
+        transition: none;
+    }
+
+    body.world-transitioning {
+        opacity: 0;
+        transform: none;
+        filter: none;
+    }
+}
+
+/* =========================================================
+   EXPLORE WORLDS - MAIN SECTION TRANSITION
+   ========================================================= */
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Initial state of world cards */
+.world-card {
+    opacity: 0;
+    transform: translateY(45px) scale(0.96);
+    transition:
+        opacity 0.65s ease,
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Cards become visible */
+.world-card.world-card-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Slightly different timing for each card */
+.world-card:nth-child(1) {
+    transition-delay: 0.05s;
+}
+
+.world-card:nth-child(2) {
+    transition-delay: 0.15s;
+}
+
+.world-card:nth-child(3) {
+    transition-delay: 0.25s;
+}
+
+.world-card:nth-child(4) {
+    transition-delay: 0.35s;
+}
+
+/* Main Explore Worlds button */
+#explore-worlds {
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#explore-worlds:hover {
+    transform: translateY(-3px);
+}
+
+#explore-worlds:active {
+    transform: scale(0.95);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    .world-card {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+}
+

@@ -459,3 +459,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderPreviews();
 });
+
+// ------------------------------------------------------------
+// WORLD ENTRY TRANSITION
+// ------------------------------------------------------------
+
+document.querySelectorAll('a[href*=".html"]').forEach((link) => {
+    const href = link.getAttribute("href");
+
+    // Only apply to world-entry links
+    if (
+        !href ||
+        (!href.includes("geometric.html") &&
+         !href.includes("superpowers.html") &&
+         !href.includes("games.html") &&
+         !href.includes("music.html"))
+    ) {
+        return;
+    }
+
+    link.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        const destination = href;
+
+        link.classList.add("world-enter-active");
+
+        document.body.classList.add("world-transitioning");
+
+        setTimeout(() => {
+            window.location.href = destination;
+        }, 500);
+    });
+});
+
+// =========================================================
+// MAIN "EXPLORE WORLDS" TRANSITION
+// =========================================================
+
+const exploreWorldsButton =
+    document.querySelector("#explore-worlds");
+
+const worldsSection =
+    document.querySelector("#modes");
+
+const worldCards =
+    document.querySelectorAll(".world-card");
+
+if (exploreWorldsButton && worldsSection) {
+
+    exploreWorldsButton.addEventListener("click", (event) => {
+
+        event.preventDefault();
+
+        // Smoothly move to the worlds section
+        worldsSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        // Reveal cards after scrolling starts
+        setTimeout(() => {
+
+            worldCards.forEach((card) => {
+                card.classList.add("world-card-visible");
+            });
+
+        }, 300);
+    });
+}
+
