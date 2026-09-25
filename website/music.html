@@ -4,21 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR.UI — World 04: Music</title>
+    <title>AR.UI — World 04: Music Playground</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+    <!-- Background Procedural Canvas -->
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
     <main class="world-page">
 
         <header class="world-header">
             <a href="index.html" class="back-btn">
-                ← Back
+                ← Back to Hub
             </a>
 
             <div class="world-title">
-                <span>WORLD 04</span>
+                <span>WORLD 04 • SYNTHESIZER</span>
                 <h1>Music Playground</h1>
             </div>
 
@@ -75,12 +78,13 @@
 
 
         <div class="world-controls">
-            <span>SYNTH CONTROLLER</span>
+            <span>SYNTH CONTROLLER STATUS</span>
             <span id="tracking-status">WAITING</span>
         </div>
 
     </main>
 
+    <script src="script.js"></script>
     <script type="module">
         import { MusicWorld } from "./worlds/musicWorld.js";
         document.addEventListener("DOMContentLoaded", () => {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR.UI — Browser AR Experience Hub</title>
+    <title>AR.UI — Pastel Cosmic Hand-Tracking Playground</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -16,7 +16,7 @@
     <!-- Top Navigation Header -->
     <header class="navbar">
         <a href="index.html" class="logo">
-            AR<span>.UI</span>
+            <span class="logo-sparkle">✨</span> AR<span class="logo-highlight">.UI</span>
         </a>
 
         <nav>
@@ -26,7 +26,7 @@
         </nav>
 
         <div class="nav-status" id="nav-telemetry">
-            <span class="status-dot"></span>
+            <span class="status-dot offline"></span>
             CAMERA OFFLINE
         </div>
     </header>
@@ -37,22 +37,32 @@
 
         <!-- Hero Section -->
         <section class="hero">
+            <div class="hero-deco hero-deco-1"></div>
+            <div class="hero-deco hero-deco-2"></div>
+
             <div class="hero-content">
-                <p class="hero-label">INTERACTIVE AR EXPERIENCE HUB</p>
+                <div class="hero-badge">
+                    <span>✨ PASTEL AR PLAYGROUND</span>
+                </div>
+
                 <h1>
-                    YOUR HANDS ARE
+                    Interact with your world
                     <br>
-                    <span>THE CONTROLLER</span>
+                    <span class="hero-gradient-text">using just your hands</span>
                 </h1>
 
                 <p class="hero-text">
-                    Control 3D shapes, unleash superpower effects, play gesture arcade games, and compose synth music directly in your browser.
+                    Control 3D shapes, unleash superpower effects, play gesture arcade games, and compose synth music in real-time — directly in your browser.
                 </p>
 
-                <a href="#modes" class="hero-start">
-                    CHOOSE EXPERIENCE
-                    <span>→</span>
-                </a>
+                <div class="hero-actions">
+                    <a href="#modes" class="hero-start">
+                        EXPLORE WORLDS ↓
+                    </a>
+                    <div class="hero-pill-info">
+                        ✋ Real-time MediaPipe Hand Tracking
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -61,7 +71,7 @@
         <section class="modes" id="modes">
             <div class="mode-title">
                 <p>INTERACTIVE PORTALS</p>
-                <h2>AR EXPERIENCES</h2>
+                <h2>4 AR Playground Worlds</h2>
             </div>
 
             <div class="mode-grid">
@@ -69,13 +79,13 @@
                 <!-- World 01: Geometric -->
                 <article class="mode-card geometric-mode">
                     <div class="mode-visual">
-                        <canvas class="preview-canvas" id="preview-geo" width="220" height="180"></canvas>
+                        <canvas class="preview-canvas" id="preview-geo" width="240" height="170"></canvas>
                     </div>
 
                     <div class="mode-info">
-                        <span>WORLD 01</span>
+                        <span class="mode-badge">WORLD 01 • 3D SHAPES</span>
                         <h3>Geometric Shapes</h3>
-                        <p>Manipulate 3D wireframe cubes, pyramids, HUD shields, and electric arcs with your hands.</p>
+                        <p>Manipulate 3D wireframe cubes, pyramids, cyber shields, energy cores, and electric arcs with your fingers.</p>
                         <a href="geometric.html" class="mode-btn">
                             Enter Experience <span>→</span>
                         </a>
@@ -86,13 +96,13 @@
                 <!-- World 02: Superpowers -->
                 <article class="mode-card superpowers-mode">
                     <div class="mode-visual">
-                        <canvas class="preview-canvas" id="preview-powers" width="220" height="180"></canvas>
+                        <canvas class="preview-canvas" id="preview-powers" width="240" height="170"></canvas>
                     </div>
 
                     <div class="mode-info">
-                        <span>WORLD 02</span>
+                        <span class="mode-badge">WORLD 02 • MAGIC & POWERS</span>
                         <h3>Superpowers</h3>
-                        <p>Charge fireballs, shoot Spider-Man web cables, and open plasma energy portals.</p>
+                        <p>Charge explosive fireballs with fists, shoot web matrices with spider pose, and open plasma portals with open palms.</p>
                         <a href="superpowers.html" class="mode-btn">
                             Enter Experience <span>→</span>
                         </a>
@@ -103,13 +113,13 @@
                 <!-- World 03: Games -->
                 <article class="mode-card games-mode">
                     <div class="mode-visual">
-                        <canvas class="preview-canvas" id="preview-games" width="220" height="180"></canvas>
+                        <canvas class="preview-canvas" id="preview-games" width="240" height="170"></canvas>
                     </div>
 
                     <div class="mode-info">
-                        <span>WORLD 03</span>
-                        <h3>Games: Cosmic Dodger</h3>
-                        <p>Steer player ship with hand tracking, shoot lasers with pinch, and trigger EMP blasts.</p>
+                        <span class="mode-badge">WORLD 03 • ARCADE GAME</span>
+                        <h3>Cosmic Dodger</h3>
+                        <p>Steer your space ship using hand position, shoot lasers with pinch gestures, and release EMP blasts to dodge obstacles.</p>
                         <a href="games.html" class="mode-btn">
                             Enter Experience <span>→</span>
                         </a>
@@ -120,13 +130,13 @@
                 <!-- World 04: Music -->
                 <article class="mode-card music-mode">
                     <div class="mode-visual">
-                        <canvas class="preview-canvas" id="preview-music" width="220" height="180"></canvas>
+                        <canvas class="preview-canvas" id="preview-music" width="240" height="170"></canvas>
                     </div>
 
                     <div class="mode-info">
-                        <span>WORLD 04</span>
+                        <span class="mode-badge">WORLD 04 • SYNTHESIZER</span>
                         <h3>Music Playground</h3>
-                        <p>Trigger Web Audio synthesizer notes and modulate frequency visualizer waves with gestures.</p>
+                        <p>Trigger Web Audio synth notes across 8 scale columns and modulate interactive frequency waves with gestures.</p>
                         <a href="music.html" class="mode-btn">
                             Enter Experience <span>→</span>
                         </a>
@@ -142,7 +152,7 @@
             <div class="camera-icon">✋</div>
             <div>
                 <span>CAMERA-BASED HAND TRACKING</span>
-                <p>Zero software installation. Uses browser MediaPipe WASM GPU acceleration for real-time tracking.</p>
+                <p>Zero software installation. Uses browser MediaPipe WASM GPU acceleration for instant real-time tracking with 100% privacy.</p>
             </div>
         </section>
 
@@ -152,13 +162,13 @@
     <!-- Footer -->
     <footer id="about">
         <div class="footer-logo">
-            AR<span>.UI</span>
+            ✨ AR<span>.UI</span>
         </div>
         <div class="footer-text">
-            BROWSER-BASED HAND TRACKING PLATFORM
+            BROWSER-BASED HAND TRACKING PLAYGROUND
         </div>
         <div class="footer-credit">
-            © 2026 AR.UI • Interactive AR Platform
+             © 2026 RITU RAI. ALL RIGHTS RESERVED.
         </div>
     </footer>
 

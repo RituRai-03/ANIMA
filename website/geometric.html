@@ -10,15 +10,18 @@
 
 <body>
 
+    <!-- Background Procedural Canvas -->
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
     <main class="world-page">
 
         <header class="world-header">
             <a href="index.html" class="back-btn">
-                ← Back
+                ← Back to Hub
             </a>
 
             <div class="world-title">
-                <span>WORLD 01</span>
+                <span>WORLD 01 • 3D SHAPES</span>
                 <h1>Geometric Shapes</h1>
             </div>
 
@@ -33,7 +36,7 @@
 
             <div class="camera-message" id="camera-message">
                 <h2>Camera Access Required</h2>
-                <p>Allow camera access to enter the Geometric World.</p>
+                <p>Allow camera access to enter the Geometric AR World and interact with 3D shapes.</p>
                 <button id="start-camera">Start Camera</button>
             </div>
 
@@ -81,7 +84,7 @@
                     <div class="guide-item">
                         <span class="guide-icon">🤘</span>
                         <div class="guide-info">
-                            <strong>Rock</strong>
+                            <strong>Rock Pose</strong>
                             <span>Electric Arcs</span>
                         </div>
                     </div>
@@ -96,7 +99,7 @@
                         <span class="guide-icon">👐</span>
                         <div class="guide-info">
                             <strong>Dual Hands</strong>
-                            <span>Cage / Beam</span>
+                            <span>Cage & Beam</span>
                         </div>
                     </div>
                 </div>
@@ -106,12 +109,13 @@
 
 
         <div class="world-controls">
-            <span>HAND TRACKING</span>
+            <span>HAND TRACKING STATUS</span>
             <span id="tracking-status">WAITING</span>
         </div>
 
     </main>
 
+    <script src="script.js"></script>
     <script type="module">
         import { GeometricWorld } from "./worlds/geometricWorld.js";
         document.addEventListener("DOMContentLoaded", () => {

@@ -10,15 +10,18 @@
 
 <body>
 
+    <!-- Background Procedural Canvas -->
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
     <main class="world-page">
 
         <header class="world-header">
             <a href="index.html" class="back-btn">
-                ← Back
+                ← Back to Hub
             </a>
 
             <div class="world-title">
-                <span>WORLD 02</span>
+                <span>WORLD 02 • MAGIC & POWERS</span>
                 <h1>Superpowers</h1>
             </div>
 
@@ -33,7 +36,7 @@
 
             <div class="camera-message" id="camera-message">
                 <h2>Camera Access Required</h2>
-                <p>Allow camera access to unleash Cinematic Superpowers.</p>
+                <p>Allow camera access to unleash cinematic superpower visual effects with your hand gestures.</p>
                 <button id="start-camera">Start Camera</button>
             </div>
 
@@ -54,14 +57,14 @@
                         <span class="guide-icon">🤘</span>
                         <div class="guide-info">
                             <strong>Spider Pose</strong>
-                            <span>Web Shooter & Elastic Matrix</span>
+                            <span>Web Shooter & Matrix</span>
                         </div>
                     </div>
                     <div class="guide-item">
                         <span class="guide-icon">👐</span>
                         <div class="guide-info">
                             <strong>Dual Open Palms</strong>
-                            <span>Plasma Beam & Mystic Portal</span>
+                            <span>Plasma Beam & Portal</span>
                         </div>
                     </div>
                 </div>
@@ -71,12 +74,13 @@
 
 
         <div class="world-controls">
-            <span>CINEMATIC TRACKING</span>
+            <span>CINEMATIC TRACKING STATUS</span>
             <span id="tracking-status">WAITING</span>
         </div>
 
     </main>
 
+    <script src="script.js"></script>
     <script type="module">
         import { SuperpowersWorld } from "./worlds/superpowersWorld.js";
         document.addEventListener("DOMContentLoaded", () => {

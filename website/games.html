@@ -4,1046 +4,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>AR.UI — Cosmic Dodger</title>
-
+    <title>AR.UI — World 03: Cosmic Dodger</title>
     <link rel="stylesheet" href="style.css">
-
-    <style>
-        /* =========================================================
-           COSMIC BACKGROUND
-        ========================================================= */
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            overflow: hidden;
-            background:
-                radial-gradient(
-                    circle at 70% 20%,
-                    rgba(55, 80, 120, 0.16),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 20% 80%,
-                    rgba(35, 55, 80, 0.14),
-                    transparent 32%
-                ),
-                #070a0f;
-
-            color: #e6ebf0;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        /* =========================================================
-           MOVING STAR FIELD
-        ========================================================= */
-
-        .space-background {
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .stars,
-        .stars::before,
-        .stars::after {
-            position: absolute;
-            inset: -50%;
-            content: "";
-            background-image:
-                radial-gradient(circle, rgba(255,255,255,.75) 1px, transparent 1.5px),
-                radial-gradient(circle, rgba(180,200,220,.55) 1px, transparent 1.5px),
-                radial-gradient(circle, rgba(255,255,255,.35) .8px, transparent 1.3px);
-            background-size:
-                120px 120px,
-                190px 190px,
-                270px 270px;
-            background-position:
-                10px 20px,
-                70px 100px,
-                30px 50px;
-
-            animation: starDrift 80s linear infinite;
-        }
-
-        .stars::before {
-            opacity: .45;
-            transform: scale(1.2);
-            animation-duration: 130s;
-        }
-
-        .stars::after {
-            opacity: .25;
-            transform: scale(1.4);
-            animation-duration: 180s;
-        }
-
-        @keyframes starDrift {
-
-            from {
-                transform: translate3d(0, 0, 0);
-            }
-
-            to {
-                transform: translate3d(180px, 100px, 0);
-            }
-        }
-
-        /* =========================================================
-           DISTANT PLANETS
-        ========================================================= */
-
-        .planet {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: .7;
-        }
-
-        .planet-one {
-            width: 180px;
-            height: 180px;
-            right: 7%;
-            top: 12%;
-
-            background:
-                radial-gradient(
-                    circle at 35% 30%,
-                    #66717e,
-                    #343c46 45%,
-                    #171d25 72%,
-                    #080b10
-                );
-
-            box-shadow:
-                inset -30px -25px 45px rgba(0,0,0,.8),
-                0 0 60px rgba(130,150,170,.08);
-
-            animation: planetFloat 14s ease-in-out infinite;
-        }
-
-        .planet-two {
-            width: 85px;
-            height: 85px;
-            left: 7%;
-            bottom: 15%;
-
-            background:
-                radial-gradient(
-                    circle at 35% 30%,
-                    #596571,
-                    #252d36 55%,
-                    #0b0e13
-                );
-
-            box-shadow:
-                inset -15px -12px 25px rgba(0,0,0,.8),
-                0 0 40px rgba(120,140,160,.06);
-
-            animation: planetFloatReverse 18s ease-in-out infinite;
-        }
-
-        @keyframes planetFloat {
-
-            0%,100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(18px);
-            }
-        }
-
-        @keyframes planetFloatReverse {
-
-            0%,100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-12px);
-            }
-        }
-
-        /* =========================================================
-           MAIN PAGE
-        ========================================================= */
-
-        .world-page {
-            position: relative;
-            z-index: 2;
-
-            width: min(1400px, 94vw);
-            margin: auto;
-
-            min-height: 100vh;
-
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* =========================================================
-           HEADER
-        ========================================================= */
-
-        .world-header {
-
-            height: 76px;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            border-bottom: 1px solid rgba(160,180,200,.12);
-        }
-
-        .back-btn {
-
-            color: #9da9b5;
-            text-decoration: none;
-
-            padding: 10px 14px;
-
-            border: 1px solid rgba(160,180,200,.18);
-            border-radius: 6px;
-
-            font-size: 13px;
-            letter-spacing: .08em;
-
-            transition: .2s ease;
-        }
-
-        .back-btn:hover {
-
-            color: #ffffff;
-
-            border-color: rgba(160,180,200,.4);
-
-            background: rgba(255,255,255,.04);
-        }
-
-        .world-title {
-
-            text-align: center;
-        }
-
-        .world-title span {
-
-            display: block;
-
-            color: #778493;
-
-            font-size: 10px;
-            letter-spacing: .22em;
-
-            margin-bottom: 4px;
-        }
-
-        .world-title h1 {
-
-            margin: 0;
-
-            font-size: 20px;
-            font-weight: 500;
-
-            letter-spacing: .04em;
-        }
-
-        .fps-badge {
-
-            font-family: monospace;
-
-            font-size: 12px;
-
-            color: #8e9ba8;
-
-            border: 1px solid rgba(160,180,200,.15);
-
-            padding: 8px 11px;
-
-            border-radius: 5px;
-
-            min-width: 55px;
-
-            text-align: center;
-        }
-
-        /* =========================================================
-           GAME STAGE
-        ========================================================= */
-
-        .world-stage {
-
-            position: relative;
-
-            flex: 1;
-
-            margin: 24px 0 14px;
-
-            min-height: 500px;
-
-            overflow: hidden;
-
-            border: 1px solid rgba(160,180,200,.16);
-
-            border-radius: 12px;
-
-            background: rgba(5,8,12,.72);
-
-            box-shadow:
-                inset 0 0 80px rgba(0,0,0,.55),
-                0 15px 60px rgba(0,0,0,.25);
-        }
-
-        /* subtle scan lines */
-
-        .world-stage::after {
-
-            content: "";
-
-            position: absolute;
-            inset: 0;
-
-            pointer-events: none;
-
-            background:
-                repeating-linear-gradient(
-                    to bottom,
-                    transparent 0px,
-                    transparent 4px,
-                    rgba(255,255,255,.012) 5px
-                );
-        }
-
-        /* =========================================================
-           CAMERA
-        ========================================================= */
-
-        #camera {
-
-            position: absolute;
-
-            width: 100%;
-            height: 100%;
-
-            object-fit: cover;
-
-            transform: scaleX(-1);
-
-            opacity: .42;
-
-            filter:
-                contrast(.95)
-                brightness(.72)
-                saturate(.65);
-        }
-
-        /* =========================================================
-           AR CANVAS
-        ========================================================= */
-
-        #ar-canvas {
-
-            position: absolute;
-
-            inset: 0;
-
-            width: 100%;
-            height: 100%;
-
-            z-index: 2;
-
-            pointer-events: none;
-        }
-
-        /* =========================================================
-           GAME GRID
-        ========================================================= */
-
-        .game-grid {
-
-            position: absolute;
-
-            inset: 0;
-
-            pointer-events: none;
-
-            background-image:
-                linear-gradient(
-                    rgba(110,130,150,.035) 1px,
-                    transparent 1px
-                ),
-                linear-gradient(
-                    90deg,
-                    rgba(110,130,150,.035) 1px,
-                    transparent 1px
-                );
-
-            background-size: 70px 70px;
-
-            mask-image:
-                linear-gradient(
-                    to bottom,
-                    transparent,
-                    black 20%,
-                    black 80%,
-                    transparent
-                );
-
-            z-index: 1;
-        }
-
-        /* =========================================================
-           GAME HUD
-        ========================================================= */
-
-        .game-hud {
-
-            position: absolute;
-
-            top: 18px;
-            left: 18px;
-            right: 18px;
-
-            display: flex;
-            justify-content: space-between;
-
-            z-index: 5;
-
-            pointer-events: none;
-        }
-
-        .hud-box {
-
-            min-width: 105px;
-
-            padding: 9px 12px;
-
-            background: rgba(7,10,15,.76);
-
-            border: 1px solid rgba(150,170,190,.18);
-
-            border-radius: 6px;
-
-            backdrop-filter: blur(8px);
-        }
-
-        .hud-label {
-
-            display: block;
-
-            color: #6f7c88;
-
-            font-size: 9px;
-
-            letter-spacing: .15em;
-
-            margin-bottom: 5px;
-        }
-
-        .hud-value {
-
-            font-family: monospace;
-
-            font-size: 17px;
-
-            color: #dbe3ea;
-        }
-
-        /* =========================================================
-           CAMERA MESSAGE
-        ========================================================= */
-
-        .camera-message {
-
-            position: absolute;
-
-            inset: 0;
-
-            z-index: 10;
-
-            display: flex;
-
-            flex-direction: column;
-
-            justify-content: center;
-            align-items: center;
-
-            text-align: center;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(12,17,24,.72),
-                    rgba(4,7,11,.94)
-                );
-
-            padding: 20px;
-        }
-
-        .camera-message h2 {
-
-            margin: 0 0 10px;
-
-            font-size: 20px;
-
-            font-weight: 500;
-
-            letter-spacing: .04em;
-        }
-
-        .camera-message p {
-
-            max-width: 430px;
-
-            margin: 0 0 22px;
-
-            color: #7f8c98;
-
-            font-size: 13px;
-
-            line-height: 1.6;
-        }
-
-        #start-camera {
-
-            border: 1px solid #71879b;
-
-            background: #101821;
-
-            color: #dce5ec;
-
-            padding: 12px 22px;
-
-            border-radius: 6px;
-
-            cursor: pointer;
-
-            letter-spacing: .08em;
-
-            font-size: 12px;
-
-            transition: .2s ease;
-        }
-
-        #start-camera:hover {
-
-            background: #17222d;
-
-            border-color: #a0b2c2;
-        }
-
-        /* =========================================================
-           GESTURE GUIDE
-        ========================================================= */
-
-        .gesture-guide-hud {
-
-            position: absolute;
-
-            left: 18px;
-            bottom: 18px;
-
-            z-index: 5;
-
-            width: 280px;
-
-            background: rgba(7,10,15,.78);
-
-            border: 1px solid rgba(150,170,190,.15);
-
-            border-radius: 8px;
-
-            backdrop-filter: blur(8px);
-        }
-
-        .guide-header {
-
-            padding: 10px 13px;
-
-            border-bottom: 1px solid rgba(150,170,190,.12);
-
-            color: #84919d;
-
-            font-size: 9px;
-
-            letter-spacing: .18em;
-        }
-
-        .guide-grid {
-
-            display: grid;
-
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .guide-item {
-
-            display: flex;
-
-            gap: 9px;
-
-            padding: 11px;
-
-            border-right: 1px solid rgba(150,170,190,.08);
-
-            border-bottom: 1px solid rgba(150,170,190,.08);
-        }
-
-        .guide-icon {
-
-            font-size: 17px;
-
-            filter: grayscale(1);
-
-            opacity: .75;
-        }
-
-        .guide-info strong {
-
-            display: block;
-
-            font-size: 10px;
-
-            font-weight: 500;
-
-            color: #c5cdd5;
-
-            margin-bottom: 3px;
-        }
-
-        .guide-info span {
-
-            display: block;
-
-            font-size: 8px;
-
-            color: #687581;
-
-            line-height: 1.3;
-        }
-
-        /* =========================================================
-           BOTTOM CONTROL BAR
-        ========================================================= */
-
-        .world-controls {
-
-            height: 48px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            padding: 0 16px;
-
-            border: 1px solid rgba(150,170,190,.12);
-
-            border-radius: 7px;
-
-            background: rgba(8,11,16,.65);
-
-            color: #707d89;
-
-            font-family: monospace;
-
-            font-size: 10px;
-
-            letter-spacing: .08em;
-        }
-
-        #tracking-status {
-
-            color: #9aa8b5;
-        }
-
-        /* =========================================================
-           RESPONSIVE
-        ========================================================= */
-
-        @media (max-width: 700px) {
-
-            .world-page {
-
-                width: 96vw;
-            }
-
-            .world-title h1 {
-
-                font-size: 15px;
-            }
-
-            .gesture-guide-hud {
-
-                width: 235px;
-            }
-
-            .guide-grid {
-
-                grid-template-columns: 1fr;
-            }
-
-            .planet-one {
-
-                width: 120px;
-                height: 120px;
-            }
-
-            .hud-box {
-
-                min-width: 75px;
-            }
-        }
-
-        /* =========================================================
-           REDUCED MOTION
-        ========================================================= */
-
-        @media (prefers-reduced-motion: reduce) {
-
-            .stars,
-            .stars::before,
-            .stars::after,
-            .planet {
-
-                animation: none;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
-    <!-- =========================================================
-         COSMIC BACKGROUND
-    ========================================================== -->
+    <!-- Background Procedural Canvas -->
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
-    <div class="space-background">
-
-        <div class="stars"></div>
-
-        <div class="planet planet-one"></div>
-
-        <div class="planet planet-two"></div>
-
-    </div>
-
-
-    <!-- =========================================================
-         MAIN PAGE
-    ========================================================== -->
-
+    <!-- Main Page Container -->
     <main class="world-page">
 
-        <!-- HEADER -->
-
+        <!-- Header -->
         <header class="world-header">
-
             <a href="index.html" class="back-btn">
-                ← BACK
+                ← Back to Hub
             </a>
 
-
             <div class="world-title">
-
-                <span>WORLD 03</span>
-
-                <h1>COSMIC DODGER</h1>
-
+                <span>WORLD 03 • ARCADE GAME</span>
+                <h1>Cosmic Dodger</h1>
             </div>
 
-
-            <div
-                class="fps-badge"
-                id="fps-counter"
-            >
+            <div class="fps-badge" id="fps-counter">
                 -- FPS
             </div>
-
         </header>
 
 
-        <!-- =====================================================
-             GAME AREA
-        ====================================================== -->
-
+        <!-- Game Stage -->
         <section class="world-stage">
 
-            <!-- CAMERA -->
+            <!-- Camera Video Feed -->
+            <video id="camera" autoplay playsinline muted></video>
 
-            <video
-                id="camera"
-                autoplay
-                playsinline
-                muted
-            ></video>
-
-
-            <!-- AR / GAME CANVAS -->
-
+            <!-- AR / Game Canvas Overlay -->
             <canvas id="ar-canvas"></canvas>
 
-
-            <!-- GAME GRID -->
-
+            <!-- Game Grid Background Line Effect -->
             <div class="game-grid"></div>
 
-
-            <!-- =================================================
-                 GAME HUD
-            ================================================== -->
-
+            <!-- Game Score & Status HUD -->
             <div class="game-hud">
-
                 <div class="hud-box">
-
-                    <span class="hud-label">
-                        SCORE
-                    </span>
-
-                    <span
-                        class="hud-value"
-                        id="game-score"
-                    >
-                        000000
-                    </span>
-
+                    <span class="hud-label">SCORE</span>
+                    <span class="hud-value" id="game-score">000000</span>
                 </div>
 
-
                 <div class="hud-box">
-
-                    <span class="hud-label">
-                        LEVEL
-                    </span>
-
-                    <span
-                        class="hud-value"
-                        id="game-level"
-                    >
-                        01
-                    </span>
-
+                    <span class="hud-label">LEVEL</span>
+                    <span class="hud-value" id="game-level">01</span>
                 </div>
 
-
                 <div class="hud-box">
-
-                    <span class="hud-label">
-                        SHIELD
-                    </span>
-
-                    <span
-                        class="hud-value"
-                        id="game-shield"
-                    >
-                        100%
-                    </span>
-
+                    <span class="hud-label">SHIELD</span>
+                    <span class="hud-value" id="game-shield">100%</span>
                 </div>
-
             </div>
 
-
-            <!-- =================================================
-                 CAMERA MESSAGE
-            ================================================== -->
-
-            <div
-                class="camera-message"
-                id="camera-message"
-            >
-
-                <h2>
-                    COSMIC DODGER
-                </h2>
-
+            <!-- Camera Access Launch Screen -->
+            <div class="camera-message" id="camera-message">
+                <h2>COSMIC DODGER</h2>
                 <p>
-                    Use your hand as the game controller.
-                    Move your hand to steer the ship,
-                    pinch to fire, open your palm to shield.
+                    Use your hand as the space game controller.
+                    Move your hand to steer your ship, pinch to fire lasers, open your palm to shield, and make a fist for EMP blasts.
                 </p>
-
-                <button id="start-camera">
-                    START GAME
-                </button>
-
+                <button id="start-camera">START GAME</button>
             </div>
 
-
-            <!-- =================================================
-                 GESTURE GUIDE
-            ================================================== -->
-
+            <!-- Gesture Controls Guide Overlay -->
             <div class="gesture-guide-hud">
-
-                <div class="guide-header">
-                    GAME CONTROLS
-                </div>
-
-
+                <div class="guide-header">GAME CONTROLS</div>
                 <div class="guide-grid">
-
                     <div class="guide-item">
-
-                        <span class="guide-icon">
-                            👆
-                        </span>
-
+                        <span class="guide-icon">👆</span>
                         <div class="guide-info">
-
-                            <strong>
-                                HAND MOVE
-                            </strong>
-
-                            <span>
-                                STEER SHIP
-                            </span>
-
+                            <strong>Hand Move</strong>
+                            <span>Steer Ship</span>
                         </div>
-
                     </div>
-
-
                     <div class="guide-item">
-
-                        <span class="guide-icon">
-                            🤏
-                        </span>
-
+                        <span class="guide-icon">🤏</span>
                         <div class="guide-info">
-
-                            <strong>
-                                PINCH
-                            </strong>
-
-                            <span>
-                                FIRE
-                            </span>
-
+                            <strong>Pinch</strong>
+                            <span>Fire Lasers</span>
                         </div>
-
                     </div>
-
-
                     <div class="guide-item">
-
-                        <span class="guide-icon">
-                            ✋
-                        </span>
-
+                        <span class="guide-icon">✋</span>
                         <div class="guide-info">
-
-                            <strong>
-                                OPEN PALM
-                            </strong>
-
-                            <span>
-                                SHIELD
-                            </span>
-
+                            <strong>Open Palm</strong>
+                            <span>Shield Guard</span>
                         </div>
-
                     </div>
-
-
                     <div class="guide-item">
-
-                        <span class="guide-icon">
-                            ✊
-                        </span>
-
+                        <span class="guide-icon">✊</span>
                         <div class="guide-info">
-
-                            <strong>
-                                FIST
-                            </strong>
-
-                            <span>
-                                EMP
-                            </span>
-
+                            <strong>Fist</strong>
+                            <span>EMP Blast</span>
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
         </section>
 
 
-        <!-- =====================================================
-             STATUS BAR
-        ====================================================== -->
-
+        <!-- Bottom Status Bar -->
         <div class="world-controls">
-
-            <span>
-                GAME CONTROLLER
-            </span>
-
-            <span id="tracking-status">
-                WAITING FOR HAND CONTROLLER
-            </span>
-
+            <span>GAME CONTROLLER STATUS</span>
+            <span id="tracking-status">WAITING FOR HAND CONTROLLER</span>
         </div>
 
     </main>
 
+    <!-- Background Animation Script -->
+    <script src="script.js"></script>
 
-    <!-- =========================================================
-         GAME JAVASCRIPT
-    ========================================================== -->
-
+    <!-- Game Engine Module Script -->
     <script type="module">
+        import { CosmicDodgerGame } from "./worlds/gamesWorld.js";
 
-        import {
-            CosmicDodgerGame
-        } from "./worlds/gamesWorld.js";
-
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            () => {
-
-                try {
-
-                    const game =
-                        new CosmicDodgerGame();
-
-                    game.start();
-
-                } catch (error) {
-
-                    console.error(
-                        "Cosmic Dodger failed to start:",
-                        error
-                    );
-
-                    const status =
-                        document.getElementById(
-                            "tracking-status"
-                        );
-
-                    if (status) {
-
-                        status.textContent =
-                            "GAME INITIALIZATION ERROR";
-
-                    }
-
+        document.addEventListener("DOMContentLoaded", () => {
+            try {
+                const game = new CosmicDodgerGame();
+                game.start();
+            } catch (error) {
+                console.error("Cosmic Dodger failed to start:", error);
+                const status = document.getElementById("tracking-status");
+                if (status) {
+                    status.textContent = "GAME INITIALIZATION ERROR";
                 }
-
             }
-        );
-
+        });
     </script>
 
 </body>
