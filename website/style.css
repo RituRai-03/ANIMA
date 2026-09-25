@@ -234,7 +234,7 @@ html, body {
 }
 
 .hero-gradient-text {
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #38BDF8 100%);
+    background: linear-gradient(135deg, #a788ee 0%, #df7aac 50%, #8ac2da 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -261,7 +261,7 @@ html, body {
     align-items: center;
     gap: 10px;
     padding: 14px 32px;
-    background: linear-gradient(135deg, var(--accent-purple), var(--accent-rose));
+    background: linear-gradient(135deg, rgb(219, 152, 219), var(--accent-rose));
     border: none;
     border-radius: var(--radius-pill);
     color: #ffffff;
