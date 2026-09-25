@@ -651,30 +651,33 @@ export class CosmicDodgerGame {
             results.landmarks[0];
 
 
-        // --------------------------------------------------------
-        // Palm center
-        // --------------------------------------------------------
+       // --------------------------------------------------------
+// Palm center
+// --------------------------------------------------------
 
-        const palm =
-            getPalmCenterPx(
-                landmarks,
-                1,
-                1
-            );
-
-
-        const mirroredX =
-            1 - palm.x;
+const palm =
+    getPalmCenterPx(
+        landmarks,
+        1,
+        1
+    );
 
 
-        // Exponential smoothing with delta time
-        const handLerp = 1 - Math.exp(-22 * delta);
+// --------------------------------------------------------
+// Hand position
+// --------------------------------------------------------
 
-        this.handX += (mirroredX - this.handX) * handLerp;
+       const handX =
+          palm.x;
+
+
+     // Exponential smoothing with delta time
+       const handLerp = 1 - Math.exp(-22 * delta);
+
+        this.handX += (handX - this.handX) * handLerp;
 
         this.handY += (palm.y - this.handY) * handLerp;
-
-
+       
         // --------------------------------------------------------
         // Gesture classification & temporal stabilization
         // --------------------------------------------------------
