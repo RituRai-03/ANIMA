@@ -338,7 +338,7 @@ body.dark-mode .nav-status {
     border: 1px solid var(--border-pastel);
     border-radius: var(--radius-pill);
     color: var(--accent-purple);
-    font-size: 13px;
+    font-size: 25px;
     font-weight: 700;
     letter-spacing: 0.5px;
     margin-bottom: 22px;
@@ -348,7 +348,7 @@ body.dark-mode .nav-status {
 .hero h1 {
     font-family: var(--font-heading);
     font-size: clamp(34px, 5.5vw, 60px);
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.15;
     letter-spacing: -1px;
     color: var(--text-primary);
