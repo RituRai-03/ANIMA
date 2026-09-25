@@ -55,7 +55,57 @@
     --radius-sm: 10px;
     --radius-pill: 9999px;
 }
+/* =========================================================
+   DARK MODE
+   ========================================================= */
 
+body.dark-mode {
+    --bg-main: #0b1020;
+
+    --bg-gradient:
+        linear-gradient(
+            135deg,
+            #0b1020 0%,
+            #111827 35%,
+            #172033 70%,
+            #101827 100%
+        );
+
+    --bg-surface: rgba(17, 24, 39, 0.88);
+    --bg-surface-solid: #111827;
+    --bg-card: rgba(17, 24, 39, 0.92);
+
+    /* Keep pastel accents */
+    --pastel-lavender: #30284a;
+    --pastel-blue: #20394a;
+    --pastel-pink: #472d3c;
+    --pastel-peach: #493627;
+    --pastel-mint: #203d36;
+    --pastel-yellow: #4a4322;
+    --pastel-cream: #1b2433;
+
+    /* Text */
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-light: #64748b;
+
+    /* Borders */
+    --border-subtle: rgba(148, 163, 184, 0.2);
+    --border-pastel: rgba(167, 139, 250, 0.35);
+
+    /* Shadows */
+    --shadow-sm:
+        0 4px 12px rgba(0, 0, 0, 0.25);
+
+    --shadow-md:
+        0 10px 25px -5px rgba(0, 0, 0, 0.35),
+        0 8px 10px -6px rgba(0, 0, 0, 0.25);
+
+    --shadow-lg:
+        0 20px 35px -10px rgba(0, 0, 0, 0.45),
+        0 10px 20px -5px rgba(0, 0, 0, 0.3);
+}
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -181,6 +231,78 @@ html, body {
     box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
 }
 
+/* =========================================================
+   DARK MODE TOGGLE
+   ========================================================= */
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 8px 14px;
+
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-pill);
+
+    color: var(--text-secondary);
+
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        transform 0.2s ease,
+        border-color 0.25s ease;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    background: var(--pastel-lavender);
+    color: var(--accent-purple);
+}
+
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Dark mode button */
+body.dark-mode .theme-toggle {
+    background: #1e293b;
+    border-color: rgba(148, 163, 184, 0.25);
+    color: #f8fafc;
+}
+
+body.dark-mode .theme-toggle:hover {
+    background: #30284a;
+    color: #e9d5ff;
+}
+
+body.dark-mode .navbar {
+    background: rgba(11, 16, 32, 0.82);
+    border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+body.dark-mode .navbar nav a {
+    color: #cbd5e1;
+}
+
+body.dark-mode .navbar nav a:hover {
+    color: #e9d5ff;
+    background: #30284a;
+}
+
+body.dark-mode .nav-status {
+    background: #111827;
+    border-color: rgba(148, 163, 184, 0.2);
+    color: #cbd5e1;
+}
 /* =========================================================
    HERO SECTION
    ========================================================= */
@@ -1062,3 +1184,436 @@ html {
 
 }
 
+body.dark-mode .mode-card {
+    background: rgba(17, 24, 39, 0.92);
+    border-color: rgba(148, 163, 184, 0.2);
+}
+
+body.dark-mode .mode-card:hover {
+    border-color: rgba(167, 139, 250, 0.45);
+}
+
+body.dark-mode .mode-visual {
+    background:
+        linear-gradient(
+            135deg,
+            #111827 0%,
+            #172033 100%
+        );
+
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+body.dark-mode .mode-info p {
+    color: #cbd5e1;
+}
+
+body.dark-mode .mode-btn {
+    background: #1e293b;
+    border-color: rgba(167, 139, 250, 0.3);
+    color: #f8fafc;
+}
+
+body.dark-mode .mode-btn:hover {
+    background: linear-gradient(
+        135deg,
+        #8b5cf6,
+        #ec4899
+    );
+
+    color: #ffffff;
+}
+body.dark-mode .camera-launch {
+    background: rgba(17, 24, 39, 0.9);
+    border-color: rgba(148, 163, 184, 0.2);
+}
+
+body.dark-mode footer {
+    background: rgba(11, 16, 32, 0.9);
+    border-top-color: rgba(148, 163, 184, 0.18);
+    color: #cbd5e1;
+}
+
+/* =========================================================
+   DARK MODE — WORLD PAGES
+   ========================================================= */
+
+body.dark-mode .world-stage {
+    background:
+        radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.10), transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.08), transparent 32%),
+        #0b1020;
+}
+
+body.dark-mode .world-header {
+    background: rgba(11, 16, 32, 0.82);
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+body.dark-mode .world-header h1,
+body.dark-mode .world-header h2 {
+    color: #f8fafc;
+}
+
+body.dark-mode .world-header p {
+    color: #94a3b8;
+}
+
+body.dark-mode .world-content {
+    color: #f8fafc;
+}
+
+body.dark-mode .world-panel {
+    background: rgba(17, 24, 39, 0.88);
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+body.dark-mode .world-panel p {
+    color: #cbd5e1;
+}
+
+body.dark-mode .camera-container {
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+body.dark-mode .camera-message {
+    background: rgba(17, 24, 39, 0.92);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.18);
+}
+/* =========================================================
+   GLOBAL DARK MODE — ALL AR WORLDS
+   ========================================================= */
+
+body.dark-mode {
+    background: #070b16;
+    color: #f8fafc;
+}
+
+/* ---------------------------------------------------------
+   WORLD BACKGROUND
+   --------------------------------------------------------- */
+
+body.dark-mode .world-page {
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(139, 92, 246, 0.08),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 85% 25%,
+            rgba(236, 72, 153, 0.07),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 50% 90%,
+            rgba(59, 130, 246, 0.06),
+            transparent 32%
+        ),
+        #070b16;
+}
+
+/* ---------------------------------------------------------
+   TOP HEADER — ALL WORLDS
+   --------------------------------------------------------- */
+
+body.dark-mode .world-header {
+    background: rgba(8, 13, 27, 0.92);
+    border-color: rgba(148, 163, 184, 0.20);
+    color: #f8fafc;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+body.dark-mode .world-header h1,
+body.dark-mode .world-header h2,
+body.dark-mode .world-header h3,
+body.dark-mode .world-title {
+    color: #f8fafc;
+}
+
+body.dark-mode .world-header p {
+    color: #94a3b8;
+}
+
+/* World number / category */
+body.dark-mode .world-header .world-label {
+    color: #a78bfa;
+}
+
+
+/* ---------------------------------------------------------
+   BACK TO HUB
+   --------------------------------------------------------- */
+
+body.dark-mode .back-button,
+body.dark-mode .world-header a {
+    background: #11182a;
+    border-color: rgba(167, 139, 250, 0.30);
+    color: #ddd6fe;
+}
+
+body.dark-mode .back-button:hover,
+body.dark-mode .world-header a:hover {
+    background: #1b2440;
+    border-color: rgba(167, 139, 250, 0.55);
+    color: #ffffff;
+}
+
+
+/* ---------------------------------------------------------
+   DARK MODE BUTTON
+   --------------------------------------------------------- */
+
+body.dark-mode .theme-toggle {
+    background: #111827;
+    border-color: rgba(148, 163, 184, 0.22);
+    color: #f8fafc;
+}
+
+body.dark-mode .theme-toggle:hover {
+    background: #252044;
+    border-color: rgba(167, 139, 250, 0.45);
+}
+
+
+/* ---------------------------------------------------------
+   MAIN WORLD / CAMERA AREA
+   --------------------------------------------------------- */
+
+body.dark-mode .world-stage {
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(99, 102, 241, 0.04),
+            transparent 45%
+        ),
+        #080d1c;
+
+    border-color: rgba(139, 92, 246, 0.40);
+
+    box-shadow:
+        0 18px 50px rgba(0, 0, 0, 0.30),
+        inset 0 0 50px rgba(59, 130, 246, 0.025);
+}
+
+
+/* ---------------------------------------------------------
+   CAMERA
+   --------------------------------------------------------- */
+
+body.dark-mode #camera {
+    background: #080d1c;
+}
+
+body.dark-mode #ar-canvas {
+    background: transparent;
+}
+
+
+/* ---------------------------------------------------------
+   CAMERA MESSAGE / START SCREEN
+   Applies to all worlds
+   --------------------------------------------------------- */
+
+body.dark-mode .camera-message,
+body.dark-mode #camera-message {
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            rgba(139, 92, 246, 0.045),
+            transparent 45%
+        ),
+        #080d1c;
+
+    border-color: rgba(139, 92, 246, 0.40);
+    color: #f8fafc;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+body.dark-mode .camera-message h1,
+body.dark-mode .camera-message h2,
+body.dark-mode .camera-message h3,
+body.dark-mode #camera-message h1,
+body.dark-mode #camera-message h2,
+body.dark-mode #camera-message h3 {
+    color: #f8fafc;
+}
+
+body.dark-mode .camera-message p,
+body.dark-mode #camera-message p {
+    color: #cbd5e1;
+}
+
+
+/* ---------------------------------------------------------
+   START BUTTON — ALL WORLDS
+   --------------------------------------------------------- */
+
+body.dark-mode #start-camera,
+body.dark-mode .start-button {
+    background: linear-gradient(
+        135deg,
+        #8b5cf6,
+        #ec4899
+    );
+
+    color: #ffffff;
+    border: none;
+
+    box-shadow:
+        0 8px 25px rgba(139, 92, 246, 0.25);
+}
+
+body.dark-mode #start-camera:hover,
+body.dark-mode .start-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 30px rgba(139, 92, 246, 0.35);
+}
+
+
+/* ---------------------------------------------------------
+   BOTTOM STATUS / CONTROLLER BAR
+   FIXES THE WHITE BAR ON ALL WORLDS
+   --------------------------------------------------------- */
+
+body.dark-mode .world-controls {
+    background: rgba(8, 13, 27, 0.94);
+
+    border-color: rgba(148, 163, 184, 0.22);
+
+    color: #cbd5e1;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+body.dark-mode .world-controls span,
+body.dark-mode .world-controls p,
+body.dark-mode .world-controls label {
+    color: #94a3b8;
+}
+
+
+/* ---------------------------------------------------------
+   TRACKING STATUS
+   --------------------------------------------------------- */
+
+body.dark-mode #tracking-status {
+    background: rgba(139, 92, 246, 0.12);
+
+    border-color: rgba(139, 92, 246, 0.32);
+
+    color: #c4b5fd;
+}
+
+
+/* ---------------------------------------------------------
+   FPS / TELEMETRY
+   --------------------------------------------------------- */
+
+body.dark-mode #fps-counter {
+    background: rgba(16, 185, 129, 0.10);
+    border-color: rgba(16, 185, 129, 0.35);
+    color: #6ee7b7;
+}
+
+
+/* ---------------------------------------------------------
+   GESTURE GUIDE
+   --------------------------------------------------------- */
+
+body.dark-mode .gesture-guide-hud {
+    background: rgba(8, 13, 27, 0.90);
+
+    border-color: rgba(148, 163, 184, 0.20);
+
+    color: #cbd5e1;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+body.dark-mode .gesture-guide-hud strong {
+    color: #f8fafc;
+}
+
+
+/* ---------------------------------------------------------
+   GAME HUD
+   --------------------------------------------------------- */
+
+body.dark-mode .game-hud {
+    background: rgba(8, 13, 27, 0.88);
+
+    border-color: rgba(148, 163, 184, 0.18);
+
+    color: #f8fafc;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.30);
+}
+
+
+/* ---------------------------------------------------------
+   GENERIC PANELS / CARDS USED BY WORLDS
+   --------------------------------------------------------- */
+
+body.dark-mode .world-panel,
+body.dark-mode .hud-panel,
+body.dark-mode .info-panel {
+    background: rgba(8, 13, 27, 0.88);
+    border-color: rgba(148, 163, 184, 0.18);
+    color: #f8fafc;
+}
+
+body.dark-mode .world-panel p,
+body.dark-mode .hud-panel p,
+body.dark-mode .info-panel p {
+    color: #cbd5e1;
+}
+
+
+/* ---------------------------------------------------------
+   REMOVE WHITE DEFAULTS
+   --------------------------------------------------------- */
+
+body.dark-mode button {
+    color: #f8fafc;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+    background: #111827;
+    color: #f8fafc;
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+    body.dark-mode .world-header {
+        background: rgba(8, 13, 27, 0.96);
+    }
+
+    body.dark-mode .world-stage {
+        border-color: rgba(139, 92, 246, 0.32);
+    }
+
+    body.dark-mode .world-controls {
+        background: rgba(8, 13, 27, 0.96);
+    }
+}

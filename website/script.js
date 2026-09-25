@@ -529,3 +529,41 @@ if (exploreWorldsButton && worldsSection) {
     });
 }
 
+//GLOBAL THEME
+
+const themeToggle = document.getElementById("theme-toggle");
+
+const savedTheme = localStorage.getItem("ar-ui-theme");
+
+if(savedTheme == "dark"){
+    document.body.classList.add("dark-mode");
+}
+
+function updateThemeButton(){
+    if(!themeToggle) return;
+
+    const isDark = document.body.classList.contains("dark-mode");
+
+    themeToggle.innerHTML = isDark
+        ? "☀️ <span>Light</span>"
+        : "🌙 <span>Dark</span>";
+}
+if (themeToggle) {
+
+    updateThemeButton();
+
+    themeToggle.addEventListener("click", () => {
+
+        document.body.classList.toggle("dark-mode");
+
+        const isDark =
+            document.body.classList.contains("dark-mode");
+
+        localStorage.setItem(
+            "ar-ui-theme",
+            isDark ? "dark" : "light"
+        );
+
+        updateThemeButton();
+    });
+}
